@@ -1,0 +1,2763 @@
+# CORVANTA FRONTEND
+
+## MASTER PRODUCT, ARCHITECTURE & DEVELOPMENT INSTRUCTIONS
+
+**Project:** Corvanta
+**Frontend:** React + TypeScript + Vite
+**Backend:** Node.js + Express + MongoDB
+**Production API:** https://api.campusify.net
+**Frontend Development Agent:** Kilo / Kilo Code
+**Development Method:** Controlled staged implementation
+**Current Status:** Frontend foundation completed; backend hosted
+**Document Purpose:** Master instruction manual for the entire Corvanta frontend development lifecycle
+
+---
+## I HAVE ADDED THE LOGOS FOR THIS PROJECT IN THE ASSETS FOLDER. I HAVE FOUR LOGO IMAGES BASED ON HOW YOU WANT THEM. I HAVE TWO DARK ABD 2 WHIITE BACKGROUND IMAGES . USE THEM AS YOU THINK FIT .
+
+# 1. READ THIS FIRST
+
+You are working on the frontend of **Corvanta**, a multi-tenant AI-powered customer communication and business automation platform.
+
+This file is the master development instruction for the frontend.
+
+You MUST read and follow this document before making significant changes to the frontend.
+
+Do not treat this project as a simple CRUD dashboard.
+
+Corvanta is intended to become a complete SaaS platform where organizations can:
+
+* discover Corvanta publicly
+* register
+* create an organization/company account
+* access their own secure portal
+* manage their company information
+* manage their users/employees
+* subscribe to services
+* manage service packages
+* manage their account
+* manage payment-related settings
+* manage customer communications
+* use AI agents
+* manage knowledge bases
+* configure workflows
+* manage communication channels
+* monitor their organization's activity
+* give subordinate employees controlled access
+* control what employees can access
+* eventually manage billing, subscriptions, invoices and payments
+
+The public website and authenticated portal are both part of the Corvanta product.
+
+---
+
+# 2. CORE PRODUCT VISION
+
+Corvanta should eventually feel like a combination of:
+
+* a SaaS company website
+* a customer account portal
+* an organization management platform
+* a customer communication platform
+* an AI automation platform
+* a service subscription portal
+
+The user journey should be:
+
+```text
+PUBLIC WEBSITE
+      ↓
+Discover Corvanta
+      ↓
+Learn about services
+      ↓
+Choose a service/package
+      ↓
+Register
+      ↓
+Create Company Account
+      ↓
+Authentication
+      ↓
+CUSTOMER PORTAL
+      ↓
+Company Dashboard
+      ↓
+Services / Products
+      ↓
+Company Information
+      ↓
+Users / Employees
+      ↓
+AI / Communication / Automation
+      ↓
+Billing / Payments / Subscription
+      ↓
+Account Management
+```
+
+The portal must be designed so that it can grow into a large SaaS platform without requiring the entire frontend architecture to be rewritten later.
+
+---
+
+# 3. VERY IMPORTANT — CURRENT API VS FUTURE PRODUCT
+
+The backend is already hosted.
+
+The current production API is:
+
+```text
+https://api.campusify.net
+```
+
+The API currently identifies itself as:
+
+```text
+Corvanta API
+version v1
+```
+
+The frontend MUST use the hosted API rather than assuming the backend is running locally.
+
+Frontend environment configuration should eventually contain:
+
+```env
+VITE_API_URL=https://api.campusify.net/api/v1
+```
+
+However, verify the exact API base-path configuration against the existing frontend API client before changing it.
+
+---
+
+# 4. BACKEND IS THE CURRENT TECHNICAL SOURCE OF TRUTH
+
+The hosted backend determines what functionality currently exists.
+
+Do NOT invent API endpoints merely because the frontend product vision contains a feature.
+
+There are two categories of functionality:
+
+## A. Currently supported backend functionality
+
+Examples include:
+
+* authentication
+* companies
+* users
+* customers
+* conversations
+* messages
+* AI agents
+* channels
+* knowledge bases
+* knowledge documents
+* workflows
+* audit-related functionality
+* outbound messaging
+
+## B. Future product functionality
+
+Examples include:
+
+* subscription plans
+* billing
+* payment processing
+* automatic payments
+* invoices
+* service marketplace
+* service activation/deactivation
+* subscription upgrades/downgrades
+* payment history
+* usage billing
+* advanced organization administration
+
+If the frontend requires functionality that the backend does not currently expose:
+
+DO NOT fake the API.
+
+Instead:
+
+1. identify the missing backend capability
+2. document it
+3. build only the frontend architecture/UI that is safe to build
+4. mark the feature as dependent on backend implementation
+5. continue only where real functionality exists
+
+---
+
+# 5. DO NOT BUILD FAKE BACKEND FUNCTIONALITY
+
+Never create fake APIs such as:
+
+```text
+POST /subscriptions
+POST /payments
+GET /billing
+POST /autopay
+```
+
+unless these endpoints actually exist.
+
+Do not make a frontend appear functional by storing fake subscription/payment information in localStorage.
+
+Do not create fake successful payment responses.
+
+Do not pretend a service has been subscribed when the backend has not actually confirmed it.
+
+The frontend must distinguish clearly between:
+
+```text
+UI concept
+Backend-supported functionality
+Future functionality
+```
+
+---
+
+# 6. PRODUCT STRUCTURE
+
+The final Corvanta frontend should have two major environments:
+
+```text
+CORVANTA
+│
+├── PUBLIC WEBSITE
+│
+└── AUTHENTICATED CUSTOMER PORTAL
+```
+
+The authenticated portal should itself contain several areas:
+
+```text
+CUSTOMER PORTAL
+│
+├── Dashboard
+├── Company
+├── Services
+├── Customers
+├── Inbox
+├── AI Agents
+├── Knowledge
+├── Channels
+├── Workflows
+├── Team
+├── Audit
+├── Billing
+├── Account
+└── Settings
+```
+
+Some areas may initially be disabled or marked as coming soon if the backend does not yet support them.
+
+---
+
+# 7. PUBLIC WEBSITE
+
+The public website is not an afterthought.
+
+It is the commercial entry point into Corvanta.
+
+It should eventually contain:
+
+```text
+/
+├── Home
+├── About
+├── Services
+├── Products
+├── Solutions
+├── Pricing
+├── Contact
+├── FAQ
+├── Resources
+├── Login
+└── Register
+```
+
+Additional pages may be introduced where justified.
+
+---
+
+# 8. PUBLIC HOME PAGE
+
+The home page should communicate what Corvanta does quickly.
+
+Potential sections:
+
+1. Hero
+2. Problem statement
+3. Corvanta solution
+4. Core capabilities
+5. Multi-channel communication
+6. AI agents
+7. Knowledge/RAG
+8. Workflow automation
+9. Customer management
+10. Service offerings
+11. How Corvanta works
+12. Benefits
+13. Industries/use cases
+14. Pricing/service preview
+15. Call to action
+16. Footer
+
+Do not fill the page with generic AI marketing language.
+
+The content should eventually communicate the actual Corvanta product.
+
+---
+
+# 9. ABOUT PAGE
+
+Explain:
+
+* what Corvanta is
+* the problem it solves
+* the platform philosophy
+* automation
+* AI
+* customer communication
+* business operations
+
+Keep content modular so it can later be replaced by finalized business copy.
+
+---
+
+# 10. SERVICES / PRODUCTS
+
+The public website should explain services that customers can obtain through Corvanta.
+
+Potential categories:
+
+```text
+AI Customer Support
+Customer Communication
+Workflow Automation
+Knowledge Management
+AI Agents
+Omnichannel Messaging
+Customer CRM
+Business Automation
+```
+
+Do not assume these are final commercial packages.
+
+The product architecture should allow services to be changed later.
+
+---
+
+# 11. PRICING
+
+Pricing is eventually a major commercial area.
+
+Potential structure:
+
+```text
+Free / Trial
+Starter
+Professional
+Business
+Enterprise
+```
+
+These are examples only.
+
+Do not hard-code these as final commercial plans unless instructed.
+
+Pricing should eventually be data-driven.
+
+The backend should eventually expose plan/subscription information.
+
+Until then, pricing can be a public informational page without pretending to process subscriptions.
+
+---
+
+# 12. REGISTRATION JOURNEY
+
+Registration is a critical product flow.
+
+The intended journey is approximately:
+
+```text
+Public Website
+      ↓
+Register
+      ↓
+Account Details
+      ↓
+Company Details
+      ↓
+Create Account
+      ↓
+Authentication
+      ↓
+Customer Portal
+```
+
+Current backend registration includes:
+
+```text
+name
+email
+password
+companyName
+industry
+```
+
+Use the real backend validation rules.
+
+Do not invent additional required registration fields unless the backend supports them.
+
+---
+
+# 13. AUTHENTICATION
+
+Current authentication architecture includes:
+
+```text
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+POST /api/v1/auth/refresh
+POST /api/v1/auth/logout
+GET  /api/v1/auth/me
+```
+
+Authentication uses:
+
+* access JWT
+* refresh JWT
+* access token approximately 15 minutes
+* refresh token approximately 7 days
+* refresh token rotation
+
+The frontend must correctly handle:
+
+```text
+login
+logout
+refresh
+authenticated requests
+expired access token
+protected routes
+session restoration
+unauthorized responses
+```
+
+Do not create a fake authentication system.
+
+---
+
+# 14. OWNER AND EMPLOYEE MODEL
+
+One important product requirement is organization-level authorization.
+
+A company/customer organization should be able to have:
+
+```text
+OWNER
+EMPLOYEE
+```
+
+The owner has broader control.
+
+Employees have limited access.
+
+The architecture must support future expansion of roles without requiring a rewrite.
+
+The backend currently has a more sophisticated role/permission model.
+
+Therefore:
+
+DO NOT reduce the backend's permission system to only two frontend roles.
+
+Instead, present the product initially around the business concepts:
+
+```text
+Owner
+Employee
+```
+
+while preserving the underlying backend permission architecture.
+
+---
+
+# 15. OWNER CAPABILITIES
+
+An organization owner may eventually be able to:
+
+* view company dashboard
+* edit company information
+* manage services
+* subscribe to services
+* upgrade services
+* downgrade services
+* cancel services
+* manage billing
+* configure payment methods
+* activate automatic payments
+* view invoices
+* manage employees
+* invite employees
+* deactivate employees
+* manage permissions
+* manage AI agents
+* manage channels
+* manage knowledge
+* manage workflows
+* manage customer communications
+* access audit logs
+* manage account settings
+
+Only implement capabilities supported by the backend.
+
+---
+
+# 16. EMPLOYEE CAPABILITIES
+
+Employees should have access only to functionality permitted by their permissions.
+
+Potential employee access:
+
+* dashboard
+* customers
+* conversations
+* messages
+* assigned AI tools
+* knowledge
+* channels
+* workflows
+
+Potential restrictions:
+
+* billing
+* payment methods
+* subscription changes
+* service activation/deactivation
+* employee administration
+* company ownership settings
+
+Again:
+
+These restrictions must be enforced by backend permissions.
+
+Frontend restrictions are only UX.
+
+---
+
+# 17. TEAM MANAGEMENT
+
+The portal should eventually allow owners/managers to manage employees.
+
+Capabilities:
+
+* invite employee
+* create employee
+* view employees
+* edit employee
+* deactivate employee
+* assign role
+* assign department
+* assign title
+* assign manager
+* view status
+
+Current backend user functionality includes:
+
+```text
+GET /users
+GET /users/me
+POST /users
+GET /users/:id
+PATCH /users/:id
+DELETE /users/:id
+```
+
+Use the real API.
+
+---
+
+# 18. CUSTOMER PORTAL DASHBOARD
+
+The authenticated dashboard is one of the most important screens.
+
+The dashboard should provide an overview of the customer's organization.
+
+Potential dashboard sections:
+
+```text
+Welcome / Company
+Current Services
+Service Status
+Usage
+Conversations
+Customers
+AI Agents
+Channels
+Knowledge
+Workflow Activity
+Team
+Notifications
+Account Status
+Billing Summary
+```
+
+However, every metric must come from a real API or be clearly marked as unavailable.
+
+Do not invent numbers.
+
+---
+
+# 19. COMPANY PROFILE
+
+The organization should have a dedicated company area.
+
+Potential information:
+
+```text
+Company name
+Industry
+Region
+Country
+City
+Contact information
+Company description
+Business metadata
+```
+
+Current backend company data includes:
+
+```text
+name
+slug
+industry
+regionId
+countryId
+cityId
+ownerId
+status
+```
+
+The frontend should make company information easy to understand and update where supported.
+
+---
+
+# 20. SERVICES PORTAL
+
+The Services area is part of the long-term commercial architecture.
+
+Potential structure:
+
+```text
+Services
+│
+├── Available Services
+├── Active Services
+├── Service Details
+├── Add Service
+├── Change Service
+└── Cancel Service
+```
+
+A service should eventually show:
+
+* name
+* description
+* features
+* status
+* pricing
+* usage
+* activation date
+* renewal date
+* billing cycle
+
+However, subscription/payment data requires backend support.
+
+Until those APIs exist:
+
+DO NOT implement fake service activation.
+
+---
+
+# 21. SUBSCRIPTION ARCHITECTURE
+
+The eventual subscription system should support:
+
+```text
+Customer
+    ↓
+Plan
+    ↓
+Subscription
+    ↓
+Services
+    ↓
+Billing
+    ↓
+Payment
+```
+
+Potential lifecycle:
+
+```text
+trial
+active
+past_due
+paused
+cancelled
+expired
+```
+
+These are conceptual states only until confirmed by backend contracts.
+
+---
+
+# 22. PAYMENT ARCHITECTURE
+
+The long-term portal should eventually support:
+
+* payment methods
+* payment history
+* invoices
+* billing instructions
+* automatic payments
+* payment confirmation
+* failed payments
+* renewal payments
+
+Potential flow:
+
+```text
+Select Service
+      ↓
+Select Plan
+      ↓
+Review
+      ↓
+Payment
+      ↓
+Confirmation
+      ↓
+Subscription Active
+```
+
+Do not implement payment processing until the backend/payment provider architecture is established.
+
+Never collect sensitive payment information directly in an unsafe frontend form.
+
+---
+
+# 23. AUTOMATIC PAYMENTS
+
+The product vision includes automatic payments.
+
+Eventually this could provide:
+
+```text
+Automatic payment:
+ON / OFF
+
+Payment method:
+Card / supported provider
+
+Next payment:
+Date
+
+Amount:
+Amount
+
+Subscription:
+Plan
+```
+
+The exact implementation depends on the payment provider and backend.
+
+The frontend must never invent this functionality.
+
+---
+
+# 24. ACCOUNT SETTINGS
+
+The user should eventually have:
+
+```text
+Account
+├── Profile
+├── Security
+├── Password
+├── Sessions
+├── Notifications
+└── Preferences
+```
+
+Only implement backend-supported features.
+
+Current backend does NOT provide all of these capabilities.
+
+Document missing backend APIs rather than fabricating them.
+
+---
+
+# 25. CORE CORVANTA OPERATIONS
+
+The portal's operational side should expose the existing Corvanta backend.
+
+Core modules:
+
+```text
+Customers
+Conversations
+Messages
+AI Agents
+Channels
+Knowledge Bases
+Documents
+Workflows
+Employees
+Audit
+```
+
+These are not merely dashboard widgets.
+
+They are actual product modules.
+
+---
+
+# 26. CUSTOMER MANAGEMENT
+
+Customer functionality:
+
+```text
+GET /customers
+POST /customers
+GET /customers/:id
+PATCH /customers/:id
+DELETE /customers/:id
+```
+
+UI:
+
+```text
+Customer List
+Customer Search
+Customer Filters
+Customer Details
+Customer Edit
+Customer Creation
+Customer Activity
+Customer Conversations
+Customer Identities
+```
+
+---
+
+# 27. CONVERSATION INBOX
+
+The Inbox should become the central operational workspace.
+
+Conceptually:
+
+```text
+┌───────────────────────────────────────────────┐
+│ Search / Filters                              │
+├─────────────────┬─────────────────────────────┤
+│ Conversation    │ Conversation                 │
+│ List            │                             │
+│                 │ Customer                    │
+│ Customer        │ Channel                     │
+│ Channel         │ Status                      │
+│ Status          │                             │
+│ Last Message    │ Messages                    │
+│                 │                             │
+│                 │ Composer                    │
+└─────────────────┴─────────────────────────────┘
+```
+
+Features:
+
+* conversation list
+* search
+* filters
+* customer information
+* channel
+* status
+* messages
+* assignments
+* AI context
+* message composer
+* sending
+* errors
+* delivery state
+
+---
+
+# 28. MULTI-CHANNEL SUPPORT
+
+Current Corvanta channel architecture includes:
+
+```text
+Email
+WhatsApp
+Instagram
+Messenger
+Webchat
+SMS
+```
+
+The UI must represent channels consistently.
+
+Use:
+
+* channel icons
+* channel names
+* connection status
+* conversation channel
+* channel configuration
+
+Do not expose configuration fields that the backend does not actually support.
+
+---
+
+# 29. AI AGENTS
+
+AI agents are a core Corvanta capability.
+
+Agent configuration includes concepts such as:
+
+```text
+Name
+Slug
+Status
+Provider
+Model
+Temperature
+Max Tokens
+Prompt Template
+Owner
+Knowledge Bases
+Response Configuration
+Fallback Configuration
+Metadata
+```
+
+The UI should make these understandable.
+
+Do not make users deal with raw technical details unnecessarily.
+
+---
+
+# 30. KNOWLEDGE MANAGEMENT
+
+Knowledge consists of:
+
+```text
+Knowledge Base
+    ↓
+Documents
+    ↓
+Chunks
+    ↓
+Embeddings
+    ↓
+Vector Search
+    ↓
+AI Agent
+```
+
+The frontend should expose the business-level concepts rather than requiring users to understand vector databases.
+
+---
+
+# 31. DOCUMENT INDEXING
+
+Current backend supports document indexing.
+
+The frontend should show the indexing lifecycle.
+
+Conceptual:
+
+```text
+Document
+   ↓
+Index
+   ↓
+Processing
+   ↓
+Chunks
+   ↓
+Embeddings
+   ↓
+Indexed
+```
+
+Display:
+
+* indexing state
+* chunk count
+* last indexed time
+* errors
+* document status
+
+Use exact backend values once verified.
+
+---
+
+# 32. WORKFLOW AUTOMATION
+
+Workflow automation is a major Corvanta capability.
+
+Current trigger concepts include:
+
+```text
+message.received
+conversation.created
+conversation.updated
+customer.created
+```
+
+Current action concepts include:
+
+```text
+assign employee
+assign agent
+update conversation
+update customer
+send message
+create audit event
+```
+
+The frontend should eventually allow users to create visual business automations.
+
+Development order:
+
+```text
+Workflow List
+      ↓
+Workflow CRUD
+      ↓
+Workflow Configuration
+      ↓
+Trigger Configuration
+      ↓
+Condition Configuration
+      ↓
+Action Configuration
+      ↓
+Preview
+      ↓
+Activate / Deactivate
+      ↓
+Execution History
+      ↓
+Visual Builder
+```
+
+Do not build the sophisticated visual editor before understanding the backend workflow schema.
+
+---
+
+# 33. AUDIT LOG
+
+The platform should eventually give owners/admins visibility into important organizational activity.
+
+Examples:
+
+```text
+User created
+Customer updated
+Conversation updated
+Workflow activated
+Agent changed
+Channel connected
+Document indexed
+```
+
+The frontend must use actual audit APIs.
+
+---
+
+# 34. NOTIFICATION SYSTEM
+
+The UI should eventually support:
+
+* success notifications
+* errors
+* warnings
+* informational notifications
+* system notices
+* account notices
+* billing notices
+
+Use Sonner where appropriate.
+
+Do not turn every minor UI event into a toast.
+
+---
+
+# 35. SEARCH
+
+Corvanta should eventually have strong search capabilities.
+
+Search areas may include:
+
+```text
+Customers
+Conversations
+Messages
+Agents
+Knowledge
+Documents
+Employees
+Workflows
+```
+
+Use backend-supported search parameters.
+
+Do not pretend frontend filtering is equivalent to server-side search for large datasets.
+
+---
+
+# 36. RESPONSIVE DESIGN
+
+The portal must work on:
+
+* desktop
+* laptop
+* tablet
+* mobile
+
+The conversation inbox deserves special attention on mobile.
+
+The sidebar should collapse appropriately.
+
+Tables should become usable mobile layouts rather than overflowing uncontrollably.
+
+Forms must remain usable.
+
+---
+
+# 37. ACCESSIBILITY
+
+All components must consider:
+
+* keyboard navigation
+* focus management
+* labels
+* semantic HTML
+* accessible dialogs
+* screen-reader labels
+* focus states
+* appropriate contrast
+* error messaging
+
+Do not sacrifice accessibility for visual effects.
+
+---
+
+# 38. DESIGN SYSTEM
+
+Use:
+
+```text
+Tailwind CSS
+shadcn/ui
+Lucide React
+Motion
+```
+
+Do not introduce Bootstrap.
+
+Do not introduce multiple competing component libraries.
+
+The design should feel:
+
+* modern
+* professional
+* trustworthy
+* SaaS-oriented
+* clean
+* operational
+* responsive
+
+Do not finalize an arbitrary color palette without considering the Corvanta brand.
+
+---
+
+# 39. STATE MANAGEMENT
+
+Use Redux Toolkit for genuine client/application state.
+
+Use TanStack Query for server state.
+
+Do not store every API response in Redux.
+
+Example:
+
+```text
+Redux
+→ authenticated user/client state
+→ UI state
+→ preferences
+→ global application state
+
+TanStack Query
+→ customers
+→ conversations
+→ messages
+→ agents
+→ channels
+→ knowledge
+→ workflows
+→ employees
+```
+
+---
+
+# 40. API CLIENT
+
+All API calls should use the central Axios client.
+
+Example conceptual configuration:
+
+```text
+VITE_API_URL=https://api.campusify.net/api/v1
+```
+
+The API client must support:
+
+* authorization headers
+* refresh handling
+* centralized errors
+* request configuration
+* response handling
+
+Do not scatter raw Axios instances throughout the application.
+
+---
+
+# 41. FORMS
+
+Use:
+
+```text
+React Hook Form
++
+Zod
+```
+
+Standard flow:
+
+```text
+Form
+ ↓
+Zod validation
+ ↓
+React Hook Form
+ ↓
+API mutation
+ ↓
+TanStack Query
+ ↓
+Success/Error
+ ↓
+UI update
+```
+
+---
+
+# 42. ERROR HANDLING
+
+Handle:
+
+```text
+400
+401
+403
+404
+409
+429
+500
+502
+503
+504
+```
+
+Provide understandable messages.
+
+Do not expose backend stack traces to users.
+
+Authentication errors should be handled centrally.
+
+---
+
+# 43. LOADING STATES
+
+Every async operation should have an appropriate state.
+
+Examples:
+
+```text
+Page loading
+Table loading
+Button submitting
+Dialog submitting
+Message sending
+Document indexing
+Channel connecting
+Workflow activating
+```
+
+Do not leave users wondering whether the application is working.
+
+---
+
+# 44. EMPTY STATES
+
+Create meaningful empty states.
+
+Examples:
+
+```text
+No customers yet.
+No conversations found.
+No AI agents configured.
+No knowledge bases created.
+No documents available.
+No workflows created.
+No employees added.
+```
+
+Each empty state should provide an appropriate next action when possible.
+
+---
+
+# 45. DESTRUCTIVE ACTIONS
+
+Use confirmation for destructive actions.
+
+Examples:
+
+```text
+Delete customer
+Delete employee
+Delete agent
+Delete channel
+Delete knowledge base
+Delete document
+Delete workflow
+Disconnect channel
+Cancel service
+Cancel subscription
+```
+
+Never make destructive actions dangerously easy to trigger.
+
+---
+
+# 46. TESTING
+
+Testing must grow with the application.
+
+Use:
+
+```text
+Vitest
+React Testing Library
+Playwright
+```
+
+Test:
+
+* authentication
+* protected routes
+* forms
+* permissions
+* CRUD operations
+* conversation behavior
+* messaging
+* agent configuration
+* knowledge management
+* workflow management
+* critical customer journeys
+
+---
+
+# 47. SECURITY
+
+Never place backend secrets in the frontend.
+
+Never expose:
+
+```text
+OPENAI_API_KEY
+AWS_SECRET_ACCESS_KEY
+DATABASE credentials
+JWT signing secrets
+payment provider secret keys
+```
+
+Only public browser-safe variables may use:
+
+```text
+VITE_*
+```
+
+The frontend is never the final authorization boundary.
+
+---
+
+# 48. PERFORMANCE
+
+Eventually optimize:
+
+* code splitting
+* lazy routes
+* query caching
+* unnecessary requests
+* large lists
+* conversation rendering
+* document lists
+* bundle size
+
+Do not optimize prematurely.
+
+First build correctly.
+
+---
+
+# 49. FRONTEND DIRECTORY ARCHITECTURE
+
+Maintain a feature-oriented structure.
+
+Preferred:
+
+```text
+src/
+├── app/
+│   ├── providers/
+│   ├── router/
+│   ├── store/
+│   └── layouts/
+│
+├── components/
+│   ├── ui/
+│   ├── common/
+│   └── layout/
+│
+├── features/
+│   ├── auth/
+│   ├── companies/
+│   ├── customers/
+│   ├── conversations/
+│   ├── messages/
+│   ├── agents/
+│   ├── channels/
+│   ├── knowledge/
+│   ├── workflows/
+│   ├── users/
+│   ├── audit/
+│   ├── billing/
+│   └── services/
+│
+├── pages/
+├── hooks/
+├── lib/
+├── types/
+├── utils/
+└── styles/
+```
+
+Not every feature needs every subdirectory.
+
+Do not create empty architecture purely for appearance.
+
+---
+
+# 50. STAGED DEVELOPMENT SYSTEM
+
+Kilo must build Corvanta in controlled stages.
+
+Never tell Kilo:
+
+```text
+Build the whole frontend.
+```
+
+Instead, Kilo must execute one stage at a time.
+
+The master sequence is:
+
+```text
+FOUNDATION
+      ↓
+A — Production API Integration
+      ↓
+B — Authentication
+      ↓
+C — Public Website
+      ↓
+D — Application Shell
+      ↓
+E — Customer Portal Dashboard
+      ↓
+F — Company Management
+      ↓
+G — Services Architecture
+      ↓
+H — Team & Employee Management
+      ↓
+I — Customers
+      ↓
+J — Conversations / Inbox
+      ↓
+K — Messaging
+      ↓
+L — AI Agents
+      ↓
+M — Channels
+      ↓
+N — Knowledge Bases
+      ↓
+O — Knowledge Documents / RAG
+      ↓
+P — Workflows
+      ↓
+Q — Audit
+      ↓
+R — Permissions / Authorization UX
+      ↓
+S — Account & Settings
+      ↓
+T — Billing / Subscription Architecture
+      ↓
+U — Search / Filtering
+      ↓
+V — Notifications / UX states
+      ↓
+W — Analytics
+      ↓
+X — Accessibility / Responsive
+      ↓
+Y — Testing / Security / Performance
+      ↓
+Z — Production QA / Release
+```
+
+---
+
+# 51. STAGE A
+
+# PRODUCTION API INTEGRATION
+
+The backend is now hosted.
+
+This stage establishes the frontend's connection to the actual API.
+
+Verify:
+
+```text
+https://api.campusify.net
+```
+
+Verify the API base path.
+
+Configure:
+
+```text
+VITE_API_URL
+```
+
+Ensure Axios communicates with the hosted backend.
+
+Test:
+
+```text
+GET /
+GET /api/v1/health
+```
+
+where applicable.
+
+Verify:
+
+* CORS
+* authorization
+* error responses
+* API connectivity
+* environment variables
+
+Do not build business features in Stage A.
+
+---
+
+# 52. STAGE B
+
+# AUTHENTICATION
+
+Implement:
+
+* registration
+* login
+* logout
+* token handling
+* refresh
+* `/me`
+* protected routes
+* public routes
+* session restoration
+
+Use real production API.
+
+---
+
+# 53. STAGE C
+
+# PUBLIC WEBSITE
+
+Build:
+
+```text
+Home
+About
+Services
+Products
+Solutions
+Pricing
+Contact
+FAQ
+Login
+Register
+```
+
+The website should be visually coherent.
+
+---
+
+# 54. STAGE D
+
+# APPLICATION SHELL
+
+Build:
+
+* sidebar
+* top navigation
+* breadcrumbs
+* user menu
+* responsive navigation
+* notifications
+* page headers
+* navigation guards
+* reusable UI primitives
+
+---
+
+# 55. STAGE E
+
+# CUSTOMER PORTAL DASHBOARD
+
+Build the main dashboard.
+
+Show only data actually available from the backend.
+
+Prepare dashboard architecture for future:
+
+```text
+Services
+Subscription
+Billing
+Usage
+Payments
+```
+
+without inventing data.
+
+---
+
+# 56. STAGE F
+
+# COMPANY MANAGEMENT
+
+Implement company profile and company information.
+
+Use actual backend capabilities.
+
+---
+
+# 57. STAGE G
+
+# SERVICES ARCHITECTURE
+
+Build the frontend architecture for:
+
+```text
+Available Services
+Active Services
+Service Details
+Service Management
+```
+
+If backend subscription APIs do not yet exist:
+
+Build the architecture/UI where useful, but clearly mark backend dependencies.
+
+Do not fake activation.
+
+---
+
+# 58. STAGE H
+
+# TEAM MANAGEMENT
+
+Implement employees/users.
+
+Support owner-controlled employee management where backend permissions allow it.
+
+---
+
+# 59. STAGE I
+
+# CUSTOMER MANAGEMENT
+
+Implement customer CRUD and customer identities.
+
+---
+
+# 60. STAGE J
+
+# CONVERSATIONS / INBOX
+
+Implement the main conversation workspace.
+
+This is one of the highest-priority operational modules.
+
+---
+
+# 61. STAGE K
+
+# MESSAGING
+
+Implement:
+
+* message history
+* composer
+* outbound messages
+* delivery states
+* errors
+* permissions
+
+---
+
+# 62. STAGE L
+
+# AI AGENTS
+
+Implement agent management and configuration.
+
+---
+
+# 63. STAGE M
+
+# CHANNELS
+
+Implement:
+
+* channel list
+* connection status
+* connect
+* disconnect
+* retry
+* configuration
+
+---
+
+# 64. STAGE N
+
+# KNOWLEDGE BASES
+
+Implement knowledge base CRUD and management.
+
+---
+
+# 65. STAGE O
+
+# KNOWLEDGE DOCUMENTS / RAG
+
+Implement:
+
+* document management
+* indexing
+* status
+* search
+* retrieval testing
+* AI knowledge association
+
+Do not invent file upload infrastructure that backend does not provide.
+
+---
+
+# 66. STAGE P
+
+# WORKFLOWS
+
+Implement workflow CRUD first.
+
+Then:
+
+* triggers
+* conditions
+* actions
+* preview
+* activation
+* deactivation
+* executions
+
+Build visual editing only after the underlying schema is fully understood.
+
+---
+
+# 67. STAGE Q
+
+# AUDIT
+
+Implement audit/activity visibility using actual backend support.
+
+---
+
+# 68. STAGE R
+
+# PERMISSIONS / AUTHORIZATION UX
+
+Implement centralized permission-aware components.
+
+Examples:
+
+```text
+<Can permission="customers:create">
+```
+
+or equivalent.
+
+Never treat frontend permission hiding as backend security.
+
+---
+
+# 69. STAGE S
+
+# ACCOUNT & SETTINGS
+
+Build:
+
+```text
+Profile
+Security
+Preferences
+Company
+Notifications
+```
+
+only where backend APIs exist.
+
+---
+
+# 70. STAGE T
+
+# BILLING / SUBSCRIPTION ARCHITECTURE
+
+This is a future commercial stage.
+
+Eventually implement:
+
+```text
+Plans
+Services
+Subscriptions
+Billing
+Payment methods
+Invoices
+Payment history
+Auto-payment
+Upgrade
+Downgrade
+Cancellation
+```
+
+But first identify the backend APIs required.
+
+If the backend does not yet support them:
+
+STOP short of fake functionality.
+
+Document the backend requirements.
+
+---
+
+# 71. STAGE U
+
+# SEARCH / FILTERING
+
+Standardize search and filtering across the application.
+
+---
+
+# 72. STAGE V
+
+# NOTIFICATIONS / UX STATES
+
+Standardize:
+
+* loading
+* error
+* empty
+* success
+* confirmation
+* retry
+* toast behavior
+
+---
+
+# 73. STAGE W
+
+# ANALYTICS
+
+Build analytics based only on actual available data.
+
+---
+
+# 74. STAGE X
+
+# ACCESSIBILITY / RESPONSIVE DESIGN
+
+Perform complete responsive and accessibility pass.
+
+---
+
+# 75. STAGE Y
+
+# TESTING / SECURITY / PERFORMANCE
+
+Complete:
+
+* unit tests
+* component tests
+* integration tests
+* E2E
+* security review
+* performance review
+
+---
+
+# 76. STAGE Z
+
+# PRODUCTION QA / RELEASE
+
+Final validation:
+
+```text
+Public website
+Registration
+Login
+Dashboard
+Company
+Services
+Team
+Customers
+Inbox
+Messaging
+AI
+Channels
+Knowledge
+Workflows
+Audit
+Settings
+Billing architecture
+Authorization
+Mobile
+Desktop
+Errors
+Security
+```
+
+Then production release.
+
+---
+
+# 77. KILO DEVELOPMENT PROTOCOL
+
+Kilo MUST follow this exact process.
+
+For every stage:
+
+```text
+1. Read this instructions.txt
+2. Read the current frontend repository
+3. Read the relevant backend API contract
+4. Check the hosted API where useful
+5. Inspect existing implementation
+6. Reuse existing components/infrastructure
+7. Implement ONLY the current stage
+8. Test
+9. Build
+10. Lint
+11. Review changes
+12. Report
+13. STOP
+```
+
+Kilo must not automatically continue to the next stage.
+
+---
+
+# 78. KILO MUST USE THE HOSTED API
+
+The hosted API is:
+
+```text
+https://api.campusify.net
+```
+
+The frontend should develop against the hosted backend.
+
+If an endpoint fails:
+
+Do not immediately create mock data.
+
+Determine whether:
+
+```text
+frontend issue
+backend issue
+authentication issue
+CORS issue
+environment issue
+missing API functionality
+```
+
+Then report it.
+
+---
+
+# 79. KILO STAGE REPORT FORMAT
+
+At the end of every stage, Kilo must report:
+
+```text
+STAGE:
+STATUS:
+
+FILES CHANGED:
+
+FEATURES IMPLEMENTED:
+
+API ENDPOINTS USED:
+
+NEW TYPES:
+
+NEW COMPONENTS:
+
+NEW HOOKS:
+
+VALIDATION:
+
+TESTS:
+
+BUILD:
+
+LINT:
+
+HOSTED API VERIFICATION:
+
+BACKEND ISSUES:
+
+FRONTEND ISSUES:
+
+REMAINING WORK:
+
+NEXT STAGE:
+```
+
+Kilo must not claim something works unless it actually verified it.
+
+---
+
+# 80. NO UNCONTROLLED SCOPE EXPANSION
+
+If Kilo discovers an interesting feature during implementation:
+
+Do not automatically implement it.
+
+Record it as:
+
+```text
+Future Enhancement
+```
+
+unless it belongs to the current stage.
+
+---
+
+# 81. NO PREMATURE BILLING IMPLEMENTATION
+
+The commercial vision includes payments and subscriptions.
+
+But billing must eventually involve:
+
+```text
+Frontend
+    ↓
+Backend
+    ↓
+Payment Provider
+    ↓
+Webhook
+    ↓
+Backend subscription state
+    ↓
+Frontend
+```
+
+The frontend must never directly determine that a payment succeeded.
+
+The backend/payment provider must confirm it.
+
+---
+
+# 82. NO PREMATURE AI IMPLEMENTATION
+
+The frontend may configure AI agents, but AI secrets remain server-side.
+
+Never expose:
+
+```text
+OPENAI_API_KEY
+```
+
+to the browser.
+
+The frontend communicates with Corvanta's API.
+
+---
+
+# 83. NO PREMATURE CLOUD STORAGE IMPLEMENTATION
+
+If document/file upload requires S3 or another storage service and the backend does not currently expose the required API:
+
+Do not implement fake uploads.
+
+Document the backend requirement.
+
+---
+
+# 84. GIT WORKFLOW
+
+After every completed stage:
+
+```bash
+git status
+git diff
+```
+
+Review the changes.
+
+Then commit with meaningful messages.
+
+Examples:
+
+```text
+feat(frontend): connect production API
+feat(auth): implement authentication
+feat(public): build marketing website
+feat(shell): build portal application shell
+feat(dashboard): build customer dashboard
+feat(customers): implement customer management
+feat(inbox): implement conversation workspace
+feat(ai): implement agent management
+feat(knowledge): implement knowledge management
+feat(workflows): implement workflow management
+```
+
+---
+
+# 85. DEFINITION OF DONE
+
+A stage is complete only when:
+
+* functionality is implemented
+* hosted API is used where applicable
+* TypeScript passes
+* lint passes
+* build passes
+* relevant tests pass
+* no fake data remains
+* no fake APIs exist
+* permissions are respected
+* errors are handled
+* loading states exist
+* empty states exist
+* responsive behavior is considered
+* code is reusable
+* no secrets are exposed
+* backend limitations are documented
+
+---
+
+# 86. IMPORTANT BACKEND GAPS TO TRACK
+
+The current backend may not yet provide all functionality envisioned for the final SaaS product.
+
+Track these explicitly:
+
+```text
+Password reset
+Email verification
+2FA / OTP
+Advanced session management
+Subscription APIs
+Plan APIs
+Billing APIs
+Payment APIs
+Automatic payment APIs
+Invoice APIs
+Usage billing
+Service catalog APIs
+Service activation/deactivation
+Payment webhooks
+File upload service
+S3 integration
+Advanced analytics
+Advanced audit querying
+```
+
+These are not frontend failures.
+
+They are backend/product expansion requirements.
+
+---
+
+# 87. DO NOT CHANGE BACKEND LOGIC FROM THE FRONTEND
+
+If the frontend discovers a backend deficiency:
+
+Report it.
+
+If a backend change is required:
+
+Create a clear backend requirement.
+
+Do not silently create frontend workarounds that corrupt the architecture.
+
+---
+
+# 88. PRODUCT PHILOSOPHY
+
+Corvanta should eventually make the customer feel:
+
+> "This is my company's control center for everything Corvanta provides."
+
+The portal should not feel like an API administration interface.
+
+The user should see business concepts:
+
+```text
+My Company
+My Services
+My Team
+My Customers
+My Conversations
+My AI
+My Knowledge
+My Automations
+My Billing
+My Account
+```
+
+rather than simply:
+
+```text
+CRUD records
+API resources
+MongoDB entities
+```
+
+The backend architecture is technical.
+
+The frontend should translate it into a useful business product.
+
+---
+
+# 89. FINAL ARCHITECTURE
+
+The long-term system should conceptually look like:
+
+```text
+                         CORVANTA
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+        PUBLIC WEBSITE              CUSTOMER PORTAL
+              │                           │
+       Marketing / Sales          ┌────────┴─────────┐
+              │                   │                  │
+         Registration          OWNER             EMPLOYEE
+              │                   │                  │
+              └──────────────┬────┴───────┬──────────┘
+                             │             │
+                         Company        Permissions
+                             │
+          ┌──────────────────┼──────────────────┐
+          │                  │                  │
+       Services          Operations          Account
+          │                  │                  │
+       Billing          Customers          Profile
+       Plans            Conversations       Settings
+       Payments         Messages            Security
+       Usage            AI Agents
+                        Channels
+                        Knowledge
+                        Workflows
+                        Audit
+```
+
+---
+
+# 90. IMMEDIATE NEXT ACTION
+
+The frontend foundation has already been created.
+
+The backend has now been hosted.
+
+Therefore the next frontend stage is:
+
+```text
+STAGE A
+PRODUCTION API INTEGRATION
+```
+
+Do not begin with random UI development.
+
+First make sure the existing frontend foundation is correctly connected to:
+
+```text
+https://api.campusify.net
+```
+
+Then verify:
+
+```text
+API connectivity
+Health endpoint
+CORS
+Axios
+Environment variables
+Authentication infrastructure
+Error handling
+```
+
+After Stage A is confirmed:
+
+```text
+Stage B — Authentication
+```
+
+Then:
+
+```text
+Stage C — Public Website
+```
+
+Then:
+
+```text
+Stage D — Application Shell
+```
+
+and continue through the roadmap.
+
+---
+
+# 91. MASTER RULE
+
+The development sequence is:
+
+```text
+HOSTED BACKEND
+       ↓
+FRONTEND FOUNDATION
+       ↓
+PRODUCTION API CONNECTION
+       ↓
+AUTHENTICATION
+       ↓
+PUBLIC WEBSITE
+       ↓
+APPLICATION SHELL
+       ↓
+CUSTOMER PORTAL
+       ↓
+CORE CORVANTA OPERATIONS
+       ↓
+SERVICES
+       ↓
+SUBSCRIPTIONS / BILLING
+       ↓
+ADVANCED PRODUCT FEATURES
+       ↓
+TESTING
+       ↓
+SECURITY
+       ↓
+PERFORMANCE
+       ↓
+PRODUCTION RELEASE
+```
+
+Kilo must treat this file as the master development manual.
+
+Never skip architectural verification.
+
+Never invent backend functionality.
+
+Never build fake payments.
+
+Never expose secrets.
+
+Never bypass backend authorization.
+
+Never jump multiple stages without explicit instruction.
+
+Build Corvanta incrementally, verify every stage, and maintain a production-quality codebase throughout the entire project.
+
+## Verified Authentication Contract
+
+The following authentication endpoints have been verified against the Corvanta production backend:
+
+**Production API base URL:**
+`https://api.campusify.net/api/v1`
+
+### Authentication Endpoints
+
+| Method | Endpoint         | Authentication | Purpose                                   |
+| ------ | ---------------- | -------------- | ----------------------------------------- |
+| POST   | `/auth/register` | Public         | Register a new account                    |
+| POST   | `/auth/login`    | Public         | Authenticate a user                       |
+| POST   | `/auth/refresh`  | Public         | Refresh authentication credentials        |
+| POST   | `/auth/logout`   | Protected      | Log out the authenticated user            |
+| GET    | `/auth/me`       | Protected      | Retrieve the currently authenticated user |
+
+### Backend Authentication Infrastructure
+
+The backend currently provides:
+
+* JWT-based authentication infrastructure
+* Protected routes through the `protect` middleware
+* Login
+* Registration
+* Token refresh
+* Logout
+* Current-user retrieval
+* Bearer authorization support
+* Authentication-specific rate limiting
+* General API rate limiting
+* CORS with credentials enabled
+* `Authorization` as an allowed CORS header
+
+### Frontend Authentication Rules
+
+The frontend MUST use the verified endpoints above and MUST NOT invent alternative authentication endpoints.
+
+The frontend authentication layer should support:
+
+1. Login
+2. Registration where appropriate to the current product flow
+3. Authentication state initialization
+4. Current-user retrieval through `/auth/me`
+5. Token refresh through `/auth/refresh`
+6. Logout through `/auth/logout`
+7. Protected routes
+8. Public routes
+9. Authentication error handling
+10. Session/token expiration handling
+
+The exact request and response payload structures MUST be obtained from the backend controller implementation or actual API responses. Do not assume field names, token names, response shapes, or storage requirements merely from the route names.
+
+### Axios Authentication Behavior
+
+The frontend Axios layer should:
+
+* attach the appropriate authentication credential to protected requests
+* handle HTTP 401 responses appropriately
+* attempt token refresh when supported by the backend authentication contract
+* prevent infinite refresh loops
+* retry the original request only when refresh succeeds
+* clear authentication state when refresh fails
+* redirect to authentication when the session is no longer valid
+
+### Security Rules
+
+Never hardcode real credentials or secrets.
+
+Do not expose server-side secrets in Vite environment variables.
+
+Do not treat frontend route protection as the actual security boundary.
+
+Backend authorization remains authoritative.
+
+Authentication changes must preserve the backend's CORS and credential requirements.
+
+### Important
+
+These endpoints are verified backend functionality and are part of the current Corvanta API contract.
+
+If the backend implementation differs from the assumptions above, inspect the actual controller/service implementation and use the backend implementation as the final source of truth.
+
+
+## Complete Verified Backend API Route Registry
+
+**Production API:**
+
+`https://api.campusify.net`
+
+**API Base URL:**
+
+`https://api.campusify.net/api/v1`
+
+This registry contains the currently verified Corvanta backend routes.
+
+**IMPORTANT:** These routes are the current backend contract. Frontend implementation MUST use these routes where applicable and MUST NOT invent alternative endpoints.
+
+The backend remains the source of truth. If the actual backend implementation differs from this registry, inspect the backend implementation and update this registry.
+
+---
+
+### Health
+
+| Method | Endpoint   | Auth   | Permission |
+| ------ | ---------- | ------ | ---------- |
+| GET    | `/health/` | Public | —          |
+
+---
+
+### Authentication
+
+| Method | Endpoint         | Auth      | Purpose              |
+| ------ | ---------------- | --------- | -------------------- |
+| POST   | `/auth/register` | Public    | Register user        |
+| POST   | `/auth/login`    | Public    | Login                |
+| POST   | `/auth/refresh`  | Public    | Refresh access token |
+| POST   | `/auth/logout`   | Protected | Logout               |
+| GET    | `/auth/me`       | Protected | Current user         |
+
+Authentication endpoints are rate limited.
+
+---
+
+### Companies
+
+| Method | Endpoint      | Permission                |
+| ------ | ------------- | ------------------------- |
+| GET    | `/companies/` | `companies:read`          |
+| POST   | `/companies/` | Super-admin authorization |
+
+---
+
+### Users / Employees
+
+| Method | Endpoint     | Permission         |
+| ------ | ------------ | ------------------ |
+| GET    | `/users/me`  | Authenticated      |
+| GET    | `/users/`    | `employees:read`   |
+| POST   | `/users/`    | `employees:create` |
+| GET    | `/users/:id` | `employees:read`   |
+| PATCH  | `/users/:id` | `employees:update` |
+| DELETE | `/users/:id` | `employees:delete` |
+
+---
+
+### Customers
+
+| Method | Endpoint         | Permission         |
+| ------ | ---------------- | ------------------ |
+| GET    | `/customers/`    | `customers:read`   |
+| POST   | `/customers/`    | `customers:create` |
+| GET    | `/customers/:id` | `customers:read`   |
+| PATCH  | `/customers/:id` | `customers:update` |
+| DELETE | `/customers/:id` | `customers:delete` |
+
+---
+
+### AI Agents
+
+| Method | Endpoint      | Permission      |
+| ------ | ------------- | --------------- |
+| GET    | `/agents/`    | `agents:read`   |
+| POST   | `/agents/`    | `agents:create` |
+| GET    | `/agents/:id` | `agents:read`   |
+| PATCH  | `/agents/:id` | `agents:update` |
+| DELETE | `/agents/:id` | `agents:delete` |
+
+---
+
+### Knowledge Bases
+
+| Method | Endpoint               | Permission         |
+| ------ | ---------------------- | ------------------ |
+| GET    | `/knowledge-bases/`    | `knowledge:read`   |
+| POST   | `/knowledge-bases/`    | `knowledge:create` |
+| GET    | `/knowledge-bases/:id` | `knowledge:read`   |
+| PATCH  | `/knowledge-bases/:id` | `knowledge:update` |
+| DELETE | `/knowledge-bases/:id` | `knowledge:delete` |
+
+### Knowledge Base Search
+
+| Method | Endpoint                  | Permission       |
+| ------ | ------------------------- | ---------------- |
+| POST   | `/knowledge-bases/search` | `knowledge:read` |
+
+---
+
+### Knowledge Documents
+
+| Method | Endpoint                                | Permission         |
+| ------ | --------------------------------------- | ------------------ |
+| GET    | `/knowledge-documents/`                 | `knowledge:read`   |
+| POST   | `/knowledge-documents/`                 | `knowledge:create` |
+| GET    | `/knowledge-documents/:id`              | `knowledge:read`   |
+| PATCH  | `/knowledge-documents/:id`              | `knowledge:update` |
+| DELETE | `/knowledge-documents/:id`              | `knowledge:delete` |
+| POST   | `/knowledge-documents/:id/index`        | `knowledge:update` |
+| GET    | `/knowledge-documents/:id/index-status` | `knowledge:read`   |
+| DELETE | `/knowledge-documents/:id/index`        | `knowledge:update` |
+
+---
+
+### Conversations
+
+| Method | Endpoint                                  | Permission                    |
+| ------ | ----------------------------------------- | ----------------------------- |
+| GET    | `/conversations/`                         | `conversations:read`          |
+| POST   | `/conversations/`                         | `conversations:create`        |
+| GET    | `/conversations/:id`                      | `conversations:read`          |
+| PATCH  | `/conversations/:id`                      | `conversations:update`        |
+| DELETE | `/conversations/:id`                      | `conversations:delete`        |
+| GET    | `/conversations/:conversationId/messages` | `conversations:messages:read` |
+| POST   | `/conversations/:conversationId/messages` | `conversations:send`          |
+
+Conversation message sending is subject to AI rate limiting.
+
+---
+
+### Workflows
+
+| Method | Endpoint                    | Permission         |
+| ------ | --------------------------- | ------------------ |
+| GET    | `/workflows/`               | `workflows:read`   |
+| POST   | `/workflows/`               | `workflows:create` |
+| GET    | `/workflows/executions`     | `workflows:read`   |
+| GET    | `/workflows/:id`            | `workflows:read`   |
+| PATCH  | `/workflows/:id`            | `workflows:update` |
+| POST   | `/workflows/:id/activate`   | `workflows:update` |
+| POST   | `/workflows/:id/deactivate` | `workflows:update` |
+| POST   | `/workflows/:id/preview`    | `workflows:read`   |
+| DELETE | `/workflows/:id`            | `workflows:delete` |
+
+---
+
+### Webhooks
+
+| Method | Endpoint                 | Auth                   |
+| ------ | ------------------------ | ---------------------- |
+| POST   | `/webhooks/:webhookPath` | Webhook authentication |
+
+Webhook requests require webhook authentication/signature handling.
+
+---
+
+### Channels
+
+| Method | Endpoint                   | Permission        |
+| ------ | -------------------------- | ----------------- |
+| GET    | `/channels/`               | `channels:read`   |
+| POST   | `/channels/`               | `channels:create` |
+| GET    | `/channels/:id`            | `channels:read`   |
+| PATCH  | `/channels/:id`            | `channels:update` |
+| DELETE | `/channels/:id`            | `channels:delete` |
+| POST   | `/channels/:id/connect`    | `channels:update` |
+| POST   | `/channels/:id/disconnect` | `channels:update` |
+| GET    | `/channels/:id/connection` | `channels:read`   |
+| POST   | `/channels/:id/retry`      | `channels:update` |
+
+---
+
+### Customer Identities
+
+| Method | Endpoint                   | Permission                   |
+| ------ | -------------------------- | ---------------------------- |
+| GET    | `/customer-identities/`    | `customer-identities:read`   |
+| POST   | `/customer-identities/`    | `customer-identities:create` |
+| GET    | `/customer-identities/:id` | `customer-identities:read`   |
+| PATCH  | `/customer-identities/:id` | `customer-identities:update` |
+| DELETE | `/customer-identities/:id` | `customer-identities:delete` |
+
+---
+
+### Outbound Messaging
+
+| Method | Endpoint         | Permission      |
+| ------ | ---------------- | --------------- |
+| POST   | `/outbound/send` | `messages:send` |
+
+---
+
+### API Root
+
+| Method | Endpoint | Auth   |
+| ------ | -------- | ------ |
+| GET    | `/`      | Public |
+
+Returns the Corvanta API welcome/version information.
+
+---
+
+## Backend API Architecture Rules
+
+The backend follows REST-style conventions.
+
+General rules:
+
+1. Production API base is `https://api.campusify.net/api/v1`.
+2. All API routes use the `/api/v1` prefix except the root `/`.
+3. Authentication is enforced using the backend authentication middleware.
+4. Authorization is enforced using backend permissions.
+5. Frontend route protection is NOT a security boundary.
+6. Backend permissions are authoritative.
+7. The frontend must not invent endpoints.
+8. The frontend must not assume request/response schemas from endpoint names alone.
+9. When implementing an endpoint, inspect its controller/service/schema or actual API response when necessary.
+10. Do not build fake API responses to simulate backend functionality.
+11. Preserve the distinction between authenticated routes and public routes.
+12. Respect backend rate limiting.
+13. Specialized endpoints such as indexing, search, workflow operations, channel connection operations, and webhooks must be treated according to their actual backend behavior.
+
+### Current Backend Resource Areas
+
+The backend currently exposes functionality for:
+
+* Health
+* Authentication
+* Companies
+* Users / Employees
+* Customers
+* AI Agents
+* Knowledge Bases
+* Knowledge Documents
+* Conversations
+* Conversation Messages
+* Workflows
+* Workflow Executions
+* Webhooks
+* Channels
+* Customer Identities
+* Outbound Messaging
+
+### Route Count
+
+The current documented backend contains **46 distinct API endpoints across 16 route files**, excluding the API root from the `/api/v1` route count where applicable.
+
+This registry should be updated whenever backend routes are added, removed, renamed, or materially changed.

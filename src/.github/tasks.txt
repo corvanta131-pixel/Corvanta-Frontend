@@ -1,0 +1,346 @@
+# Corvanta — Stage H: Team & Employee Management
+
+You are now executing **Stage H — Team & Employee Management**.
+
+Begin immediately. Do not ask whether I am ready.
+
+## 1. Read project instructions
+
+Read these files first:
+
+1. `.github/instructions.txt`
+2. `.github/copilot.md`
+3. The verified backend API route registry in `.github/instructions.txt`
+
+Stages A–G are complete. Preserve their functionality and visual consistency.
+
+Update `.github/copilot.md` to mark Stage H in progress before implementation.
+
+## 2. Objective
+
+Replace the `/team` placeholder with a production-quality employee-management interface for the authenticated company.
+
+The page should allow authorized users to:
+
+* View team members
+* Search and filter employees
+* Inspect an employee's details
+* Create an employee account
+* Edit an employee's permitted details
+* Delete an employee, with confirmation
+* Understand employee roles and permissions where the backend provides them
+
+Use the existing authenticated application shell. Do not create another layout.
+
+## 3. Verified API contract
+
+The verified routes are:
+
+```text
+GET    /api/v1/users/me
+GET    /api/v1/users/          employees:read
+POST   /api/v1/users/          employees:create
+GET    /api/v1/users/:id       employees:read
+PATCH  /api/v1/users/:id       employees:update
+DELETE /api/v1/users/:id       employees:delete
+```
+
+Use the existing API client and the actual API base URL configuration.
+
+**Do not invent endpoints, request fields, response fields, role values, or permission values.**
+
+Before building forms, inspect the existing backend contract and frontend types. Determine the actual fields required by `POST /users/` and accepted by `PATCH /users/:id`. If the repository does not contain enough evidence, inspect existing verified types or tests. If the exact contract still cannot be established, document the uncertainty rather than guessing.
+
+## 4. Company isolation and security
+
+Corvanta is multi-tenant.
+
+* The backend is authoritative for company scoping.
+* Never allow users to supply arbitrary company IDs to retrieve or modify another company's employees.
+* Do not add client-controlled `companyId` query parameters.
+* Do not treat frontend permission checks as a replacement for backend authorization.
+* Never display passwords, access tokens, refresh tokens, or other secrets.
+* Do not log sensitive employee information.
+
+## 5. Permissions
+
+Use the existing permission utilities from Stage D.
+
+Use only the verified permissions:
+
+```text
+employees:read
+employees:create
+employees:update
+employees:delete
+```
+
+Respect permissions in the interface:
+
+* Hide or disable actions the user is not allowed to perform.
+* Show a clear restricted-access state when the user cannot view the team.
+* Do not make unauthorized API requests simply to discover whether permission is granted.
+* The backend must still enforce all permissions.
+
+Inspect how permissions are represented in the current authentication state before implementing the checks.
+
+## 6. Team page layout
+
+Build a polished page at:
+
+```text
+/team
+```
+
+Include:
+
+* Page title and concise description
+* Team-member count, derived honestly from available results
+* Search input
+* Useful filters only when supported by actual fields
+* Employee list/table on desktop
+* Responsive employee cards or a usable alternative on mobile
+* A clear create-employee action for authorized users
+
+Use the existing Corvanta design system and shared components, including `PageContainer`, `PageTitle`, and existing UI primitives where appropriate.
+
+Avoid excessive cards and unnecessary visual decoration.
+
+## 7. Employee list
+
+Display only fields that the API actually returns, such as name, email, role, status, or creation date if verified.
+
+Requirements:
+
+* Loading skeleton
+* Useful empty state
+* Error state with retry
+* Search by appropriate available fields
+* Accessible action menu or buttons
+* Clear status labels
+* Stable rendering and appropriate React keys
+
+Do not fabricate employees, counts, statuses, or role names.
+
+If pagination is not supported by the backend, do not imply that the displayed list represents a server-reported total. Keep the implementation ready for future pagination.
+
+## 8. Create employee
+
+Implement a create form only after confirming the actual request contract for `POST /api/v1/users/`.
+
+Use the existing React Hook Form and Zod conventions if appropriate.
+
+Requirements:
+
+* Validate inputs
+* Display field-level validation errors
+* Prevent duplicate submissions
+* Show pending, success, and failure feedback
+* Refresh or invalidate the relevant TanStack Query data after success
+* Close the form only after confirmed success
+* Do not invent a role selector or options unless the valid role contract is known
+
+If the backend's employee-creation requirements cannot be verified, implement the rest of the page and document the specific blocker instead of sending speculative requests.
+
+## 9. Edit employee
+
+Use the verified route:
+
+```text
+PATCH /api/v1/users/:id
+```
+
+First confirm the fields that can actually be updated.
+
+Requirements:
+
+* Prefill from the selected employee's actual data
+* Validate changes
+* Prevent duplicate submissions
+* Provide success and failure feedback
+* Invalidate affected queries after confirmed success
+* Avoid overwriting fields the user did not intend to change
+* Do not allow users to edit their own role or other sensitive fields unless the backend contract explicitly permits it
+
+If the contract is unclear, do not build a form that submits guessed fields.
+
+## 10. Delete employee
+
+Use:
+
+```text
+DELETE /api/v1/users/:id
+```
+
+Only implement deletion if the verified backend behavior and authorization contract support it.
+
+Requirements:
+
+* Show a confirmation dialog identifying the employee
+* Explain that deletion may affect their access
+* Prevent accidental repeated requests
+* Display errors clearly
+* Update the list only after confirmed success
+* Do not claim that an account is permanently deleted if the backend actually performs soft deletion
+
+Never delete an employee automatically when opening or closing a dialog.
+
+## 11. Employee details
+
+If useful and supported by the API, provide a detail view using:
+
+```text
+GET /api/v1/users/:id
+```
+
+Reuse the existing page/dialog patterns. Do not introduce another routing system solely for employee details.
+
+Only show verified fields.
+
+## 12. API and query architecture
+
+Follow existing Stage E/F patterns.
+
+Create an appropriate employee API module and reusable TanStack Query hooks if they do not already exist.
+
+Use stable query keys and invalidate affected queries after mutations.
+
+Do not duplicate the Axios client.
+
+Do not put server data into Redux merely to avoid using TanStack Query.
+
+Handle the actual API response envelope explicitly. Do not use `any` or blindly assume that every response has a `data` property.
+
+## 13. Error handling
+
+Provide user-friendly feedback for:
+
+* Network errors
+* Permission failures
+* Validation failures
+* Employee not found
+* Failed creation, update, or deletion
+
+Use existing error-handling conventions and Sonner notifications if appropriate.
+
+Never show raw stack traces or unfiltered server errors.
+
+Do not silently convert failures into empty employee lists.
+
+## 14. Accessibility and responsive design
+
+Support desktop, tablet, and mobile.
+
+Ensure:
+
+* Semantic headings and table markup where applicable
+* Keyboard-accessible forms and dialogs
+* Visible focus states
+* Proper input labels
+* Accessible confirmation dialogs
+* Clear status text
+* No horizontal overflow
+* Touch-friendly actions
+
+## 15. Testing
+
+Add meaningful tests for:
+
+1. Authorized team page renders employee data.
+2. Loading state renders.
+3. Empty state renders.
+4. API failure state and retry behavior.
+5. Permission-restricted state.
+6. Search/filter behavior.
+7. Create form validation and submission, if implemented.
+8. Edit behavior, if implemented.
+9. Delete confirmation and success/failure behavior, if implemented.
+
+Mock the API at the appropriate boundary. Do not write tests that merely check whether a container exists.
+
+## 16. Preserve existing stages
+
+Do not unnecessarily modify:
+
+* Authentication
+* Public website
+* Application shell
+* Dashboard
+* Company page
+* Services catalog
+
+If a genuine shared defect is discovered, fix it carefully and document the change.
+
+Do not implement customer CRUD, conversations, AI-agent management, channels, knowledge, workflows, audit, billing, or analytics in this stage.
+
+## 17. Validation
+
+Run:
+
+```bash
+npm run test:run
+npm run lint
+npm run build
+```
+
+Use the actual scripts defined in `package.json`.
+
+Manually verify the following routes:
+
+```text
+/
+/login
+/register
+/dashboard
+/company
+/services
+/team
+```
+
+Verify the team page with available data, empty results, API failures, and restricted permissions where testable.
+
+Confirm that create/edit/delete actions only run when the API contract and permission allow them.
+
+## 18. Update development control file
+
+After successful implementation, update `.github/copilot.md`:
+
+```text
+Stage A — COMPLETE
+Stage B — COMPLETE
+Stage C — COMPLETE
+Stage D — COMPLETE
+Stage E — COMPLETE
+Stage F — COMPLETE
+Stage G — COMPLETE
+Stage H — COMPLETE
+Stage I — NOT STARTED
+```
+
+Record:
+
+* Employee API contract confirmed
+* Components and hooks created
+* Supported CRUD operations
+* Permission handling
+* Tests added
+* Validation results
+* Any genuine backend limitations
+
+Do not mark Stage I complete.
+
+## 19. Final report
+
+Report:
+
+1. Stage H status
+2. Verified employee API contract and fields
+3. Components, services, and hooks created
+4. CRUD operations actually implemented
+5. Permission and tenant-isolation behavior
+6. Loading, empty, and error states
+7. Tests and validation results
+8. Any remaining backend limitations
+9. Confirmation that `.github/copilot.md` was updated
+
+Then STOP. Do not start Stage I automatically.
