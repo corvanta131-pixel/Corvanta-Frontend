@@ -13,7 +13,8 @@ export function can(permission: string, user: User | null): boolean {
     return false;
   }
 
-  return role.permissions.includes(permission);
+  // The backend grants the "*" wildcard to company owners (see requiresPermission).
+  return role.permissions.includes('*') || role.permissions.includes(permission);
 }
 
 export function hasPermission(user: User | null, permission: string): boolean {

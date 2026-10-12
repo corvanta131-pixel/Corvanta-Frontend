@@ -1,12 +1,5 @@
 import { AlertTriangle } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from '../ui/Dialog';
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '../ui/Dialog';
 import { Button } from '../ui/Button';
 
 interface DeleteConfirmDialogProps {
@@ -15,7 +8,7 @@ interface DeleteConfirmDialogProps {
   onConfirm: () => void;
   employeeName: string;
   isPending: boolean;
-  error: Error | null;
+  errorMessage: string | null;
 }
 
 export function DeleteConfirmDialog({
@@ -24,10 +17,10 @@ export function DeleteConfirmDialog({
   onConfirm,
   employeeName,
   isPending,
-  error,
+  errorMessage,
 }: DeleteConfirmDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(next) => !isPending && onOpenChange(next)}>
       <DialogContent>
         <DialogHeader>
           <div className="flex items-center gap-3">
@@ -35,43 +28,33 @@ export function DeleteConfirmDialog({
               <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" aria-hidden="true" />
             </div>
             <div>
-              <DialogTitle className="text-left">Delete employee</DialogTitle>
-              <DialogDescription className="text-left">
-                This action cannot be undone.
-              </DialogDescription>
+              <DialogTitle className="text-left">Remove employee</DialogTitle>
+              <DialogDescription className="text-left">Please confirm this action.</DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Are you sure you want to delete{' '}
-          <span className="font-semibold text-slate-950 dark:text-slate-50">{employeeName}</span>?
-          Their account will be deactivated and they will lose access to the Corvanta workspace.
+        <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+          Remove <span className="font-semibold text-slate-950 dark:text-slate-50">{employeeName}</span> from your
+          team? Their account will be disabled and they will lose access to the workspace. The record is retained by
+          the system rather than permanently erased.
         </p>
 
-        {error && (
+        {errorMessage && (
           <p
-            className="text-sm text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-red-900/20 px-3 py-2"
+            className="mt-3 text-sm text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-red-900/20 px-3 py-2"
             role="alert"
           >
-            {error.message}
+            {errorMessage}
           </p>
         )}
 
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isPending}
-          >
+        <DialogFooter className="mt-6 gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
             Cancel
           </Button>
-          <Button
-            variant="destructive"
-            onClick={onConfirm}
-            disabled={isPending}
-          >
-            {isPending ? 'Deleting...' : 'Delete employee'}
+          <Button variant="destructive" onClick={onConfirm} disabled={isPending}>
+            {isPending ? 'Removing…' : 'Remove employee'}
           </Button>
         </DialogFooter>
       </DialogContent>

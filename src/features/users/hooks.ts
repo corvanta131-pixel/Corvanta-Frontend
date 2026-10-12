@@ -6,7 +6,7 @@ import {
   updateEmployee,
   deleteEmployee,
 } from '../../services/api/employee';
-import type { Employee, CreateEmployeeRequest, UpdateEmployeeRequest } from '../../features/users/types';
+import type { Employee, UpdateEmployeeRequest } from './types';
 
 export const employeeQueryKeys = {
   all: ['employees'] as const,
@@ -14,43 +14,45 @@ export const employeeQueryKeys = {
   detail: (id: string) => [...employeeQueryKeys.all, 'detail', id] as const,
 };
 
-export function useEmployees() {
+export function useEmployees(enabled = true) {
   return useQuery({
     queryKey: employeeQueryKeys.list(),
     queryFn: fetchEmployees,
-    staleTime: 60000,
+    enabled,
+    staleTime: 60_000,
     refetchOnWindowFocus: false,
   });
 }
 
-export function useEmployee(id: string) {
+export function useEmployee(id: string | null | undefined) {
   return useQuery({
-    queryKey: employeeQueryKeys.detail(id),
-    queryFn: () => fetchEmployee(id),
+    queryKey: employeeQueryKeys.detail(id ?? ''),
+    queryFn: () => fetchEmployee(id as string),
     enabled: !!id,
-    staleTime: 60000,
+    staleTime: 60_000,
     refetchOnWindowFocus: false,
   });
 }
 
 export function useCreateEmployee() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: createEmployee,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: employeeQueryKeys.list() });
-    },
+    retry: false,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: employeeQueryKeys.list() }),
   });
 }
 
 export function useUpdateEmployee() {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateEmployeeRequest }) =>
-      updateEmployee(id, data),
-    onSuccess: (_updated, { id }) => {
+    mutationFn: ({ id, data }: { id: string; data: UpdateEmployeeRequest }) => updateEmployee(id, data),
+    retry: false,
+    onSuccess: (updated, { id }) => {
+      // Update/create responses carry an unpopulated roleId; keep the populated one from cache.
+      queryClient.setQueryData<Employee[]>(employeeQueryKeys.list(), (old) =>
+        old?.map((e) => (e._id === id ? { ...updated, roleId: e.roleId } : e))
+      );
       queryClient.invalidateQueries({ queryKey: employeeQueryKeys.list() });
       queryClient.invalidateQueries({ queryKey: employeeQueryKeys.detail(id) });
     },
@@ -59,14 +61,17 @@ export function useUpdateEmployee() {
 
 export function useDeleteEmployee() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: deleteEmployee,
+    retry: false,
     onSuccess: (_result, id) => {
-      queryClient.invalidateQueries({ queryKey: employeeQueryKeys.list() });
+      queryClient.setQueryData<Employee[]>(employeeQueryKeys.list(), (old) =>
+        old?.filter((e) => e._id !== id)
+      );
       queryClient.removeQueries({ queryKey: employeeQueryKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: employeeQueryKeys.list() });
     },
   });
 }
 
-export type { Employee, CreateEmployeeRequest, UpdateEmployeeRequest };
+export type { Employee };

@@ -1,71 +1,90 @@
 import { useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Label } from '../ui/Label';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from '../ui/Dialog';
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '../ui/Dialog';
 import type { Employee, CreateEmployeeRequest, UpdateEmployeeRequest } from '../../features/users/types';
 
-const employeeSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(120, 'Name must be at most 120 characters'),
-  email: z.string().email('A valid email is required'),
-  department: z.string().optional(),
-  title: z.string().optional(),
-  status: z.enum(['active', 'invited', 'disabled']).optional(),
-  managerId: z.string().optional(),
+/** Optional text: empty is fine, otherwise 2-100 characters (matches backend validateOptionalString). */
+const optionalText = (label: string) =>
+  z
+    .string()
+    .trim()
+    .refine((v) => v === '' || (v.length >= 2 && v.length <= 100), `${label} must be 2-100 characters`);
+
+export const employeeSchema = z.object({
+  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(120, 'Name must be at most 120 characters'),
+  email: z.string().trim().email('A valid email is required'),
+  department: optionalText('Department'),
+  title: optionalText('Title'),
+  status: z.enum(['active', 'invited', 'disabled']),
+  managerId: z.string(),
+  /** Create only. Empty means "no password set"; otherwise backend requires at least 8 characters. */
+  password: z
+    .string()
+    .refine((v) => v === '' || v.length >= 8, 'Password must be at least 8 characters'),
 });
 
-type EmployeeFormValues = z.infer<typeof employeeSchema>;
+export type EmployeeFormValues = z.infer<typeof employeeSchema>;
+
+/** Builds the exact request body. On update, empty strings are sent so a field can be cleared. */
+export function buildEmployeePayload(
+  values: EmployeeFormValues,
+  isEdit: boolean
+): CreateEmployeeRequest | UpdateEmployeeRequest {
+  const base = {
+    name: values.name,
+    email: values.email,
+    status: values.status,
+    managerId: values.managerId || null,
+  };
+  if (isEdit) {
+    return { ...base, department: values.department, title: values.title };
+  }
+  return {
+    ...base,
+    ...(values.department ? { department: values.department } : {}),
+    ...(values.title ? { title: values.title } : {}),
+    ...(values.password ? { password: values.password } : {}),
+  };
+}
 
 interface EmployeeFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: CreateEmployeeRequest | UpdateEmployeeRequest) => Promise<void>;
   initial?: Employee | null;
-  title: string;
-  description: string;
-  submitLabel: string;
+  /** Employees selectable as manager (the employee being edited is excluded). */
+  managers: Employee[];
   isPending: boolean;
-  error: Error | null;
+  errorMessage: string | null;
 }
+
+const selectClass =
+  'flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950';
 
 export function EmployeeForm({
   open,
   onOpenChange,
   onSubmit,
   initial,
-  title,
-  description,
-  submitLabel,
+  managers,
   isPending,
-  error,
+  errorMessage,
 }: EmployeeFormProps) {
+  const isEdit = !!initial;
   const {
     register,
     handleSubmit,
     reset,
-    control,
     formState: { errors, isSubmitting },
   } = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      department: '',
-      title: '',
-      status: 'active',
-      managerId: '',
-    },
+    defaultValues: { name: '', email: '', department: '', title: '', status: 'active', managerId: '', password: '' },
   });
 
   useEffect(() => {
@@ -77,39 +96,31 @@ export function EmployeeForm({
         title: initial?.title ?? '',
         status: initial?.status ?? 'active',
         managerId: initial?.managerId ?? '',
+        password: '',
       });
     }
   }, [open, initial, reset]);
 
-  const handleSubmitForm = async (values: EmployeeFormValues) => {
-    const payload: CreateEmployeeRequest | UpdateEmployeeRequest = {
-      name: values.name,
-      email: values.email,
-      department: values.department || undefined,
-      title: values.title || undefined,
-      status: values.status,
-      managerId: values.managerId || null,
-    };
-    await onSubmit(payload);
+  const busy = isSubmitting || isPending;
+
+  const submit = async (values: EmployeeFormValues) => {
+    await onSubmit(buildEmployeePayload(values, isEdit));
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(next) => !busy && onOpenChange(next)}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle>{isEdit ? 'Edit employee' : 'Add employee'}</DialogTitle>
+          <DialogDescription>
+            {isEdit ? 'Update this team member’s details.' : 'Create a new team member for your workspace.'}
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4" noValidate>
+        <form onSubmit={handleSubmit(submit)} className="mt-4 space-y-4" noValidate>
           <div className="space-y-2">
             <Label htmlFor="employee-name">Name *</Label>
-            <Input
-              id="employee-name"
-              {...register('name')}
-              placeholder="Employee full name"
-              aria-invalid={!!errors.name}
-            />
+            <Input id="employee-name" {...register('name')} placeholder="Full name" aria-invalid={!!errors.name} />
             {errors.name && (
               <p className="text-sm text-red-600 dark:text-red-400" role="alert">
                 {errors.name.message}
@@ -123,7 +134,7 @@ export function EmployeeForm({
               id="employee-email"
               type="email"
               {...register('email')}
-              placeholder="employee@company.com"
+              placeholder="name@company.com"
               aria-invalid={!!errors.email}
             />
             {errors.email && (
@@ -139,69 +150,87 @@ export function EmployeeForm({
               <Input
                 id="employee-department"
                 {...register('department')}
-                placeholder="e.g. Engineering"
+                placeholder="e.g. Support"
+                aria-invalid={!!errors.department}
               />
+              {errors.department && (
+                <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+                  {errors.department.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="employee-title">Title</Label>
-              <Input
-                id="employee-title"
-                {...register('title')}
-                placeholder="e.g. Developer"
-              />
+              <Input id="employee-title" {...register('title')} placeholder="e.g. Agent" aria-invalid={!!errors.title} />
+              {errors.title && (
+                <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+                  {errors.title.message}
+                </p>
+              )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="employee-status">Status</Label>
-              <Controller
-                name="status"
-                control={control}
-                render={({ field }) => (
-                  <select
-                    id="employee-status"
-                    {...field}
-                    className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
-                  >
-                    <option value="active">Active</option>
-                    <option value="invited">Invited</option>
-                    <option value="disabled">Disabled</option>
-                  </select>
-                )}
-              />
+              <select id="employee-status" {...register('status')} className={selectClass}>
+                <option value="active">Active</option>
+                <option value="invited">Invited</option>
+                <option value="disabled">Disabled</option>
+              </select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="employee-manager">Manager ID</Label>
-              <Input
-                id="employee-manager"
-                {...register('managerId')}
-                placeholder="Optional employee ID"
-              />
+              <Label htmlFor="employee-manager">Manager</Label>
+              <select id="employee-manager" {...register('managerId')} className={selectClass}>
+                <option value="">No manager</option>
+                {managers.map((m) => (
+                  <option key={m._id} value={m._id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {error && (
+          {!isEdit && (
+            <div className="space-y-2">
+              <Label htmlFor="employee-password">Initial password</Label>
+              <Input
+                id="employee-password"
+                type="password"
+                autoComplete="new-password"
+                {...register('password')}
+                placeholder="At least 8 characters (optional)"
+                aria-invalid={!!errors.password}
+                aria-describedby="employee-password-help"
+              />
+              <p id="employee-password-help" className="text-xs text-slate-500 dark:text-slate-400">
+                Leave blank and this person cannot sign in until a password is set for them.
+              </p>
+              {errors.password && (
+                <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+          )}
+
+          {errorMessage && (
             <p
               className="text-sm text-red-600 dark:text-red-400 rounded-md bg-red-50 dark:bg-red-900/20 px-3 py-2"
               role="alert"
             >
-              {error.message}
+              {errorMessage}
             </p>
           )}
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting || isPending}
-            >
+          <DialogFooter className="gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || isPending}>
-              {(isSubmitting || isPending) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {submitLabel}
+            <Button type="submit" disabled={busy}>
+              {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
+              {isEdit ? 'Save changes' : 'Create employee'}
             </Button>
           </DialogFooter>
         </form>
@@ -210,5 +239,4 @@ export function EmployeeForm({
   );
 }
 
-export type { EmployeeFormValues };
-export { employeeSchema };
+export type { EmployeeFormProps };
