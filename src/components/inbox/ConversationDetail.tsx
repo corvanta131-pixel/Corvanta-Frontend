@@ -1,148 +1,136 @@
-import { useState } from 'react';
-import { MessageSquare, Archive, X, Clock, CheckCircle, AlertCircle } from 'lucide-react';
-import type { Conversation } from '../../features/conversations/types';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { Badge } from '../../components/ui/Badge';
-import { formatDistanceToNow } from 'date-fns';
+import { ArrowLeft, AlertCircle, Mail, Phone } from 'lucide-react';
+import { Button } from '../ui/Button';
+import { ConversationStatusBadge } from './ConversationStatusBadge';
+import { MessageTimeline } from './MessageTimeline';
+import { CHANNEL_LABELS } from '../../features/customers/customerUtils';
+import {
+  CONVERSATION_STATUS_LABELS,
+  conversationTitle,
+} from '../../features/conversations/conversationUtils';
+import { useConversationMessages, useUpdateConversationStatus, MESSAGE_PAGE_LIMIT } from '../../features/conversations/hooks';
+import { CONVERSATION_STATUSES, type Conversation, type ConversationStatus } from '../../features/conversations/types';
+import type { Customer } from '../../features/customers/types';
+import { getErrorMessage } from '../../utils/apiError';
+import { toast } from 'sonner';
 
 interface ConversationDetailProps {
-  conversation: Conversation | null;
-  onClose: () => void;
+  conversation: Conversation;
+  customer: Customer | null;
+  canReadMessages: boolean;
+  canUpdate: boolean;
+  onBack: () => void;
 }
 
-export function ConversationDetail({ conversation, onClose }: ConversationDetailProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
+export function ConversationDetail({ conversation, customer, canReadMessages, canUpdate, onBack }: ConversationDetailProps) {
+  const messagesQuery = useConversationMessages(conversation._id, canReadMessages);
+  const statusMutation = useUpdateConversationStatus();
 
-  if (!conversation) {
-    return (
-      <Card className="h-full">
-        <CardContent className="flex flex-col items-center justify-center h-full text-slate-600 dark:text-slate-400">
-          <MessageSquare className="h-12 w-12 mb-4 opacity-50" />
-          <h2 className="text-lg font-medium mb-2">Select a conversation</h2>
-          <p className="text-sm">Choose a conversation from the list to view its details.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const getStatusIcon = () => {
-    switch (conversation.status) {
-      case 'open':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'waiting':
-        return <AlertCircle className="h-4 w-4 text-yellow-600" />;
-      case 'resolved':
-        return <Archive className="h-4 w-4 text-blue-600" />;
-      case 'archived':
-        return <Archive className="h-4 w-4 text-gray-600" />;
-      default:
-        return <MessageSquare className="h-4 w-4 text-slate-600" />;
+  const changeStatus = async (status: ConversationStatus) => {
+    if (status === conversation.status) return;
+    try {
+      await statusMutation.mutateAsync({ id: conversation._id, status });
+      toast.success(`Conversation marked ${CONVERSATION_STATUS_LABELS[status].toLowerCase()}.`);
+    } catch {
+      // Shown below via statusMutation.error; the displayed status stays at the server value.
     }
   };
 
+  const messages = messagesQuery.data ?? [];
+
   return (
-    <Card className="h-full flex flex-col">
-      <CardContent className="flex-1 overflow-auto p-6">
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-center gap-3">
-            {getStatusIcon()}
-            <div>
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-                {conversation.title || `Conversation with customer`}
-              </h2>
-              <Badge variant="outline" className="mt-1">
-                {conversation._id}
-              </Badge>
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" />
+    <div className="flex h-full flex-col">
+      <div className="border-b border-slate-200 dark:border-slate-800 p-4 space-y-3">
+        <div className="flex items-start gap-3">
+          <Button variant="ghost" size="sm" className="md:hidden -ml-2" onClick={onBack} aria-label="Back to conversations">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           </Button>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg font-semibold truncate">{conversationTitle(conversation)}</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {CHANNEL_LABELS[conversation.channelType] ?? conversation.channelType}
+              {conversation.handlingMode ? ` · Handled by ${conversation.handlingMode}` : ''}
+            </p>
+          </div>
+          <ConversationStatusBadge status={conversation.status} />
         </div>
 
-        <div className="grid grid-cols-2 gap-6 mb-6">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">Conversation Details</h3>
-              <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                <div className="flex justify-between">
-                  <span>Status:</span>
-                  <span className="font-medium">
-                    <ConversationStatusBadge status={conversation.status} />
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Channel:</span>
-                  <span>{conversation.channelType}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Customer ID:</span>
-                  <span>{conversation.customerId}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Created:</span>
-                  <span>{formatDistanceToNow(new Date(conversation.createdAt), { addSuffix: true })}</span>
-                </div>
-                {conversation.lastMessageAt && (
-                  <div className="flex justify-between">
-                    <span>Last Message:</span>
-                    <span>{formatDistanceToNow(new Date(conversation.lastMessageAt), { addSuffix: true })}</span>
-                  </div>
-                )}
+        {customer && (
+          <div className="rounded-lg bg-slate-50 dark:bg-slate-900 p-3 text-sm space-y-1">
+            <div className="font-medium">{customer.name}</div>
+            {customer.email && (
+              <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+                {customer.email}
               </div>
-            </div>
+            )}
+            {customer.phone && (
+              <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+                {customer.phone}
+              </div>
+            )}
+          </div>
+        )}
 
+        {canUpdate && (
+          <div className="flex items-center gap-2">
+            <label htmlFor="conversation-status" className="text-sm font-medium">
+              Status
+            </label>
+            <select
+              id="conversation-status"
+              value={conversation.status}
+              onChange={(e) => void changeStatus(e.target.value as ConversationStatus)}
+              disabled={statusMutation.isPending}
+              className="h-9 rounded-md border border-slate-300 bg-white px-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+            >
+              {CONVERSATION_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {CONVERSATION_STATUS_LABELS[s]}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        {statusMutation.error && (
+          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+            {getErrorMessage(statusMutation.error)}
+          </p>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4">
+        {!canReadMessages ? (
+          <p className="text-sm text-slate-500">You don’t have permission to read messages in this conversation.</p>
+        ) : messagesQuery.isLoading ? (
+          <p role="status" className="text-sm text-slate-500">Loading messages…</p>
+        ) : messagesQuery.isError ? (
+          <div role="alert" className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400">
+            <AlertCircle className="h-4 w-4 mt-0.5" aria-hidden="true" />
             <div>
-              <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">Handling</h3>
-              <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                <div className="flex justify-between">
-                  <span>Mode:</span>
-                  <span>{conversation.handlingMode || 'Not set'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Agent:</span>
-                  <span>{conversation.agentId || 'Unassigned'}</span>
-                </div>
-                {conversation.channelId && (
-                  <div className="flex justify-between">
-                    <span>Channel ID:</span>
-                    <span className="font-mono text-xs">{conversation.channelId}</span>
-                  </div>
-                )}
-              </div>
+              {getErrorMessage(messagesQuery.error, 'Couldn’t load messages.')}{' '}
+              <button type="button" className="underline" onClick={() => void messagesQuery.refetch()}>
+                Retry
+              </button>
             </div>
           </div>
+        ) : messages.length === 0 ? (
+          <p className="text-sm text-slate-500">No messages in this conversation yet.</p>
+        ) : (
+          <>
+            {messages.length >= MESSAGE_PAGE_LIMIT && (
+              <p className="mb-3 text-center text-xs text-slate-500">
+                Showing the most recent {MESSAGE_PAGE_LIMIT} messages.
+              </p>
+            )}
+            <MessageTimeline messages={messages} />
+          </>
+        )}
+      </div>
 
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">Timeline</h3>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 mt-1" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Conversation Created</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
-                      {new Date(conversation.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                {conversation.lastMessageAt && (
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full bg-green-500 mt-1" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Last Message</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400">
-                        {new Date(conversation.lastMessageAt).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      <div className="border-t border-slate-200 dark:border-slate-800 p-3 text-sm text-slate-500 dark:text-slate-400">
+        Replying from the inbox isn’t available yet. This view is read-only for now.
+      </div>
+    </div>
   );
 }

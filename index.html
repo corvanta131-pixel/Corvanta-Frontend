@@ -8,6 +8,23 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Dev-only: if the app fails before React renders, show the real error instead of a blank page.
+      (function () {
+        if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') return;
+        function show(msg) {
+          var root = document.getElementById('root');
+          if (root && !root.hasChildNodes()) {
+            var pre = document.createElement('pre');
+            pre.style.cssText = 'padding:16px;white-space:pre-wrap;color:#b91c1c;font:14px/1.5 monospace';
+            pre.textContent = 'Corvanta failed to start:\n\n' + msg + '\n\nOpen the browser console (F12) and the terminal running npm run dev for details.';
+            root.appendChild(pre);
+          }
+        }
+        window.addEventListener('error', function (e) { show(e.message || String(e.error)); });
+        window.addEventListener('unhandledrejection', function (e) { show(String(e.reason)); });
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

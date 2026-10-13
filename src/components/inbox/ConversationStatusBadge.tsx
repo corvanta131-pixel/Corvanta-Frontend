@@ -1,30 +1,13 @@
-import { format } from 'date-fns';
-import type { Conversation } from '../../features/conversations/types';
-import { Badge } from '../../components/ui/Badge';
+import { CONVERSATION_STATUS_LABELS, CONVERSATION_STATUS_STYLES } from '../../features/conversations/conversationUtils';
+import type { ConversationStatus } from '../../features/conversations/types';
 
-interface ConversationStatusBadgeProps {
-  status: Conversation['status'];
-}
-
-export function ConversationStatusBadge({ status }: ConversationStatusBadgeProps) {
-  const getStatusColor = () => {
-    switch (status) {
-      case 'open':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100';
-      case 'waiting':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100';
-      case 'resolved':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100';
-      case 'archived':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100';
-    }
-  };
-
+export function ConversationStatusBadge({ status }: { status: ConversationStatus }) {
   return (
-    <Badge className={getStatusColor()} variant="outline">
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </Badge>
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${CONVERSATION_STATUS_STYLES[status]}`}
+    >
+      <span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />
+      {CONVERSATION_STATUS_LABELS[status]}
+    </span>
   );
 }

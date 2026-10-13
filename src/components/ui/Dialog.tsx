@@ -10,7 +10,7 @@ interface DialogProps {
 
 const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
   React.useEffect(() => {
-    if (!open) return;
+    if (!open) return undefined;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onOpenChange(false);
     };

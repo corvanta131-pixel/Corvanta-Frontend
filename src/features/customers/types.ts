@@ -6,16 +6,16 @@ export interface Customer {
   _id: string;
   companyId: string;
   name: string;
-  email?: string;
-  phone?: string;
+  email?: string | undefined;
+  phone?: string | undefined;
   status: CustomerStatus;
-  notes?: string;
-  metadata?: Record<string, unknown>;
+  notes?: string | undefined;
+  metadata?: Record<string, unknown> | undefined;
   isDeleted: boolean;
   deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
-  __v?: number;
+  __v?: number | undefined;
 }
 
 /** POST /customers/. Backend: name 2-150, email valid if present, phone 2-30, notes <= 2000. */
