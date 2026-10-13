@@ -12,6 +12,7 @@ import { EmployeeDetail } from '../../components/employees/EmployeeDetail';
 import { EmployeeForm } from '../../components/employees/EmployeeForm';
 import { DeleteConfirmDialog } from '../../components/employees/DeleteConfirmDialog';
 import { useAppSelector } from '../../hooks';
+import { useRoles } from '../../features/roles/hooks';
 import { can } from '../../utils/permissions';
 import { getErrorMessage, isForbiddenError } from '../../utils/apiError';
 import {
@@ -39,6 +40,8 @@ export function TeamPage() {
 
   // Do not call the API at all when the user lacks read permission.
   const { data, isLoading, isError, error, refetch, isFetching } = useEmployees(canRead);
+  const canReadRoles = can('roles:read', currentUser) && (canCreate || canUpdate);
+  const { data: roles } = useRoles(canReadRoles);
   const createMutation = useCreateEmployee();
   const updateMutation = useUpdateEmployee();
   const deleteMutation = useDeleteEmployee();
@@ -248,6 +251,7 @@ export function TeamPage() {
           onOpenChange={(open) => (open ? setCreateOpen(true) : closeCreate())}
           onSubmit={handleCreate}
           managers={employees}
+          roles={roles}
           isPending={createMutation.isPending}
           errorMessage={createMutation.error ? getErrorMessage(createMutation.error) : null}
         />
@@ -260,6 +264,7 @@ export function TeamPage() {
           onSubmit={handleUpdate}
           initial={editTarget}
           managers={employees.filter((e) => e._id !== editTarget?._id)}
+          roles={roles}
           isPending={updateMutation.isPending}
           errorMessage={updateMutation.error ? getErrorMessage(updateMutation.error) : null}
         />

@@ -20,3 +20,8 @@ export function pathId(base: string, id: string, noun: string): string {
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
+
+/** True when `value` is an object whose `key` property is a string (safe under index-signature rules). */
+export function hasStringField(value: unknown, key: string): boolean {
+  return isRecord(value) && typeof value[key] === 'string';
+}

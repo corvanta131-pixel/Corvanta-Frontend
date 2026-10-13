@@ -44,6 +44,8 @@ export interface CreateEmployeeRequest {
   email: string;
   /** Optional initial password (backend: min 8). Without it the account cannot sign in. */
   password?: string;
+  /** Optional role id from GET /roles (company roles only). */
+  roleId?: string;
   department?: string;
   title?: string;
   status?: EmployeeStatus;
@@ -54,6 +56,8 @@ export interface CreateEmployeeRequest {
 export interface UpdateEmployeeRequest {
   name: string;
   email: string;
+  /** Backend ignores an empty roleId, so a role can be changed but not removed. */
+  roleId?: string;
   department?: string;
   title?: string;
   status?: EmployeeStatus;

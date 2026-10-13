@@ -119,7 +119,7 @@ Status: COMPLETE
 
 ## Stage H — Team & Employee Management
 
-Status: NOT STARTED
+Status: IMPLEMENTED — AWAITING VALIDATION (code written and statically checked only; `npm run test:run`, `npm run lint`, `npm run build` NOT yet run by Claude because the authoring sandbox had no network/node_modules. Run them locally and record results below before marking COMPLETE.)
 
 ## Stage I — Customers
 
@@ -213,11 +213,24 @@ Stage F — Company Management (2026-10-07)
 
 # KNOWN ISSUES
 
-None recorded.
+* Stage H validation commands have not been run yet (see Stage H validation below).
+* Frontend `isOwner()` checks role slug `owner`, but the backend creates the company owner's role with slug `super-admin`. Not changed in Stage H; revisit in Stage R.
+* Frontend auth `User.status` type is `'active' | 'inactive' | 'pending'`; backend enum is `active | invited | disabled`. Not changed in Stage H (auth stage preserved); fix in Stage R.
+* Sidebar references permissions the backend never defines (`services:read`, `audit:read`, `settings:read`) and owners only hold `*` for channels/workflows; `can()` now honours `*`, so these items appear for owners. Revisit nav permissions in Stage R.
 
 ---
 
 # BACKEND DEPENDENCIES
+
+Found while auditing the backend for Stage H (backend NOT modified; verify and fix server-side):
+
+1. SECURITY: `POST /users/` without a password sets the hardcoded password `TempPassword123!` (employeeService.createEmployee). Every such account shares a known password.
+2. SECURITY (verify live): every registered owner receives a per-company role with slug `super-admin`, and `isPlatformAdmin()` treats that slug as platform admin. `GET /companies/` then returns ALL companies, and `POST /companies/` is open to every owner. Cross-tenant exposure risk.
+3. No roles endpoint exists, so the frontend cannot offer a role picker; newly created employees get `roleId: null` (no permissions).
+4. Login requires `status === 'active'`; `invited` employees cannot sign in and no invitation email flow exists.
+5. `PATCH /users/:id` requires `name` and `email` even for partial updates.
+6. `department`/`title` must be 2-100 characters when provided (empty string allowed).
+7. `GET /users/` returns the full list (no pagination); supports `?status=` and `?department=` query filters, which the frontend currently does not use (it filters locally).
 
 Record frontend features that cannot be completed because the required backend capability or API does not currently exist.
 
@@ -242,6 +255,22 @@ Record any work that cannot proceed because of:
 ---
 
 # VALIDATION HISTORY
+
+## Stage H (implemented; validation pending)
+
+Verified against backend source: routes, userController, employeeService, domainValidator.validateEmployeeInput, User model.
+
+Files changed: features/users/{types,hooks,employeeUtils}.ts, services/api/employee.ts, components/employees/* (Form, Card, Detail, DeleteConfirmDialog, Filters; new Table, StatusBadge), pages/app/TeamPage.tsx, components/ui/Dialog.tsx (Escape key, role=dialog, relative close button), utils/permissions.ts (`*` wildcard), app/providers/AppProviders.tsx (mount Sonner Toaster).
+
+Tests added: employeeUtils.test.ts, services/api/employee.test.ts, EmployeeForm.test.tsx, TeamPage.test.tsx (mock-tested only, not run).
+
+Supported operations: list, view detail, create, update, soft-delete (own account cannot be removed from the UI). Local search/status/department filtering.
+
+TypeScript: NOT RUN
+ESLint: NOT RUN
+Tests: NOT RUN
+Production Build: NOT RUN
+Hosted API verification: NOT DONE (no production mutations were sent)
 
 ## Stage A
 
@@ -346,3 +375,22 @@ Kilo must:
 Kilo must never automatically continue to the next stage.
 
 The next stage may only begin when explicitly instructed.
+
+## Stage I — Customers (implemented; validation pending)
+
+Status: IMPLEMENTED, NOT VALIDATED. Static syntax check only; test:run, lint, build not yet run.
+
+Files: features/customers/{types,hooks,customerUtils}.ts (+test), features/conversations/types.ts, services/api/{customer,envelope}.ts (+customer test), components/customers/*, components/ui/ConfirmDialog.tsx, pages/app/CustomersPage.tsx (+test). services/api/employee.ts now uses the shared envelope helper.
+
+Contract decisions: email required on create in the UI (backend 409s on a second customer with an empty email); status values active/inactive/prospect/archived; search is local (server only filters status and exact email); no pagination exists; detail dialog reads identities and conversations only if the user holds customer-identities:read / conversations:read.
+
+Not supported by backend, therefore not built: tags, segments, avatars, server-side search, pagination, notes history.
+
+See docs/PROJECT_COMPLETION_TRACKER.md and docs/BACKEND_INTEGRATION_MATRIX.md.
+
+
+## Startup fix (blank screen) — applied
+Root causes: (1) `AppProviders` wrapped children in `<BrowserRouter>` while `main.tsx` renders a `RouterProvider` from `createBrowserRouter`; React Router throws "You cannot render a <Router> inside another <Router>". (2) `src/index.css` was leftover Vite starter CSS with Tailwind v3 `@tailwind` directives under Tailwind v4, plus `#root { width: 1126px; text-align: center }`. Fixes: removed `BrowserRouter`; replaced index.css with `@import "tailwindcss"` plus a minimal base. Regression test: `src/app/providers/AppProviders.test.tsx`. Also removed the invalid `--ext` flag from the lint script (ESLint 9 flat config).
+
+## Stage J (Inbox, read-only) and Stage Q (Audit) — implemented, validation pending
+Backend added: GET /roles, GET /audit-logs (+ employee role assignment refuses platform-admin). Frontend added: Inbox, Audit page, role picker, shared `hasStringField` helper. Messages are read-only; sending is Stage K. See docs/ for the tracker and matrix.

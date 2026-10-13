@@ -8,6 +8,7 @@ import { Input } from '../ui/Input';
 import { Label } from '../ui/Label';
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '../ui/Dialog';
 import type { Employee, CreateEmployeeRequest, UpdateEmployeeRequest } from '../../features/users/types';
+import type { RoleSummary } from '../../features/roles/types';
 
 /** Optional text: empty is fine, otherwise 2-100 characters (matches backend validateOptionalString). */
 const optionalText = (label: string) =>
@@ -23,6 +24,7 @@ export const employeeSchema = z.object({
   title: optionalText('Title'),
   status: z.enum(['active', 'invited', 'disabled']),
   managerId: z.string(),
+  roleId: z.string(),
   /** Create only. Empty means "no password set"; otherwise backend requires at least 8 characters. */
   password: z
     .string()
@@ -41,6 +43,7 @@ export function buildEmployeePayload(
     email: values.email,
     status: values.status,
     managerId: values.managerId || null,
+    ...(values.roleId ? { roleId: values.roleId } : {}),
   };
   if (isEdit) {
     return { ...base, department: values.department, title: values.title };
@@ -60,6 +63,8 @@ interface EmployeeFormProps {
   initial?: Employee | null;
   /** Employees selectable as manager (the employee being edited is excluded). */
   managers: Employee[];
+  /** Roles to choose from; omit or pass an empty list when the user cannot read roles. */
+  roles?: RoleSummary[] | undefined;
   isPending: boolean;
   errorMessage: string | null;
 }
@@ -73,6 +78,7 @@ export function EmployeeForm({
   onSubmit,
   initial,
   managers,
+  roles = [],
   isPending,
   errorMessage,
 }: EmployeeFormProps) {
@@ -84,7 +90,7 @@ export function EmployeeForm({
     formState: { errors, isSubmitting },
   } = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeSchema),
-    defaultValues: { name: '', email: '', department: '', title: '', status: 'active', managerId: '', password: '' },
+    defaultValues: { name: '', email: '', department: '', title: '', status: 'active', managerId: '', roleId: '', password: '' },
   });
 
   useEffect(() => {
@@ -96,6 +102,7 @@ export function EmployeeForm({
         title: initial?.title ?? '',
         status: initial?.status ?? 'active',
         managerId: initial?.managerId ?? '',
+        roleId: initial && typeof initial.roleId === 'object' && initial.roleId ? initial.roleId._id : typeof initial?.roleId === 'string' ? initial.roleId : '',
         password: '',
       });
     }
@@ -191,6 +198,23 @@ export function EmployeeForm({
               </select>
             </div>
           </div>
+
+          {roles.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="employee-role">Role</Label>
+              <select id="employee-role" {...register('roleId')} className={selectClass}>
+                <option value="">{isEdit ? 'Keep current role' : 'No role (no permissions)'}</option>
+                {roles.map((r) => (
+                  <option key={r._id} value={r._id}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                A role decides what this person can see and do. Without one they have no permissions.
+              </p>
+            </div>
+          )}
 
           {!isEdit && (
             <div className="space-y-2">

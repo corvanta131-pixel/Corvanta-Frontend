@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { EmployeeForm, buildEmployeePayload, employeeSchema } from './EmployeeForm';
 import type { Employee } from '../../features/users/types';
 
-const base = { name: 'Ada Lovelace', email: 'ada@x.com', department: '', title: '', status: 'active' as const, managerId: '', password: '' };
+const base = { name: 'Ada Lovelace', email: 'ada@x.com', department: '', title: '', status: 'active' as const, managerId: '', roleId: '', password: '' };
 
 describe('buildEmployeePayload', () => {
   it('omits empty optional fields on create', () => {
@@ -25,6 +25,14 @@ describe('buildEmployeePayload', () => {
       status: 'active',
       managerId: null,
     });
+  });
+});
+
+describe('role in payloads', () => {
+  it('includes roleId only when one is chosen', () => {
+    expect(buildEmployeePayload({ ...base, roleId: 'r1' }, false)).toMatchObject({ roleId: 'r1' });
+    expect(buildEmployeePayload({ ...base, roleId: 'r1' }, true)).toMatchObject({ roleId: 'r1' });
+    expect(buildEmployeePayload(base, true)).not.toHaveProperty('roleId');
   });
 });
 
