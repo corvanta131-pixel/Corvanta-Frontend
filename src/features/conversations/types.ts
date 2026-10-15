@@ -10,6 +10,8 @@ export interface Conversation {
   companyId: string;
   customerId: string;
   agentId?: string | null | undefined;
+  /** Team member responsible for the conversation; null/absent means unassigned. */
+  assigneeId?: string | null | undefined;
   channelType: ChannelType | 'api';
   channelId?: string | null | undefined;
   handlingMode?: HandlingMode | undefined;

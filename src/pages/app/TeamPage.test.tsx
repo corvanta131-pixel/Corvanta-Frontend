@@ -116,6 +116,8 @@ function renderPage(permissions: string[] = ALL_PERMS) {
 }
 
 const table = () => within(screen.getByRole('table'));
+/** Waits for the table to appear (the page shows a loading skeleton first), then scopes queries to it. */
+const findTable = async () => within(await screen.findByRole('table'));
 
 describe('TeamPage', () => {
   beforeEach(() => {
@@ -126,7 +128,7 @@ describe('TeamPage', () => {
 
   it('renders employees returned by the API with a real count', async () => {
     renderPage();
-    expect(await table().findByText('Ada Lovelace')).toBeInTheDocument();
+    expect(await (await findTable()).findByText('Ada Lovelace')).toBeInTheDocument();
     expect(table().getByText('Ben Carter')).toBeInTheDocument();
     expect(table().getByText('Invited')).toBeInTheDocument();
     expect(screen.getByText('3 team members')).toBeInTheDocument();
@@ -153,7 +155,7 @@ describe('TeamPage', () => {
     expect(screen.queryByText('No employees yet')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /try again/i }));
-    expect(await table().findByText('Ada Lovelace')).toBeInTheDocument();
+    expect(await (await findTable()).findByText('Ada Lovelace')).toBeInTheDocument();
     expect(mocked.fetchEmployees).toHaveBeenCalledTimes(2);
   });
 
@@ -165,14 +167,14 @@ describe('TeamPage', () => {
 
   it('honours the backend "*" wildcard permission', async () => {
     renderPage(['*']);
-    expect(await table().findByText('Ada Lovelace')).toBeInTheDocument();
+    expect(await (await findTable()).findByText('Ada Lovelace')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /add employee/i })).toBeInTheDocument();
   });
 
   it('searches case-insensitively and reports when nothing matches', async () => {
     const user = userEvent.setup();
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.type(screen.getByLabelText('Search employees'), 'ADA');
     expect(table().getByText('Ada Lovelace')).toBeInTheDocument();
@@ -184,13 +186,13 @@ describe('TeamPage', () => {
     expect(screen.getByText('No matching employees')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /clear filters/i }));
-    expect(await table().findByText('Ben Carter')).toBeInTheDocument();
+    expect(await (await findTable()).findByText('Ben Carter')).toBeInTheDocument();
   });
 
   it('filters by status and department', async () => {
     const user = userEvent.setup();
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.selectOptions(screen.getByLabelText('Filter by status'), 'invited');
     expect(table().getByText('Ben Carter')).toBeInTheDocument();
@@ -204,7 +206,7 @@ describe('TeamPage', () => {
 
   it('hides create, edit and delete controls for a read-only user', async () => {
     renderPage(['employees:read']);
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
     expect(screen.queryByRole('button', { name: /add employee/i })).not.toBeInTheDocument();
     expect(table().queryByRole('button', { name: /^edit /i })).not.toBeInTheDocument();
     expect(table().queryByRole('button', { name: /^delete /i })).not.toBeInTheDocument();
@@ -214,7 +216,7 @@ describe('TeamPage', () => {
     const user = userEvent.setup();
     mocked.createEmployee.mockResolvedValue(emp({ _id: 'emp-9', name: 'Grace Hopper', email: 'grace@x.com' }));
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.click(screen.getByRole('button', { name: /add employee/i }));
     const dialog = screen.getByRole('dialog');
@@ -242,7 +244,7 @@ describe('TeamPage', () => {
     ]);
     mocked.createEmployee.mockResolvedValue(emp({ _id: 'emp-9', name: 'Grace Hopper', email: 'grace@x.com' }));
     renderPage([...ALL_PERMS, 'roles:read']);
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.click(screen.getByRole('button', { name: /add employee/i }));
     const dialog = screen.getByRole('dialog');
@@ -265,7 +267,7 @@ describe('TeamPage', () => {
 
   it('does not request roles without roles:read', async () => {
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
     expect(mockedRoles.fetchRoles).not.toHaveBeenCalled();
   });
 
@@ -273,7 +275,7 @@ describe('TeamPage', () => {
     const user = userEvent.setup();
     mocked.createEmployee.mockRejectedValue(new Error('An employee with this email already exists in this company.'));
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.click(screen.getByRole('button', { name: /add employee/i }));
     const dialog = screen.getByRole('dialog');
@@ -289,7 +291,7 @@ describe('TeamPage', () => {
   it('does not submit an invalid create form', async () => {
     const user = userEvent.setup();
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
     await user.click(screen.getByRole('button', { name: /add employee/i }));
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /create employee/i }));
     expect(await screen.findByText('Name must be at least 2 characters')).toBeInTheDocument();
@@ -300,7 +302,7 @@ describe('TeamPage', () => {
     const user = userEvent.setup();
     mocked.updateEmployee.mockResolvedValue({ ...ada, name: 'Ada King' });
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.click(table().getByRole('button', { name: 'Edit Ada Lovelace' }));
     const dialog = screen.getByRole('dialog');
@@ -328,7 +330,7 @@ describe('TeamPage', () => {
   it('requires confirmation before deleting and does nothing on cancel', async () => {
     const user = userEvent.setup();
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.click(table().getByRole('button', { name: 'Delete Ada Lovelace' }));
     const dialog = screen.getByRole('dialog');
@@ -346,7 +348,7 @@ describe('TeamPage', () => {
     mocked.fetchEmployees.mockResolvedValueOnce(all).mockResolvedValue([olivia, ben]);
     mocked.deleteEmployee.mockResolvedValue({ ...ada, isDeleted: true, status: 'disabled' });
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.click(table().getByRole('button', { name: 'Delete Ada Lovelace' }));
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /remove employee/i }));
@@ -361,7 +363,7 @@ describe('TeamPage', () => {
     const user = userEvent.setup();
     mocked.deleteEmployee.mockRejectedValue(new Error('Employee not found.'));
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.click(table().getByRole('button', { name: 'Delete Ada Lovelace' }));
     const dialog = screen.getByRole('dialog');
@@ -374,7 +376,7 @@ describe('TeamPage', () => {
 
   it('does not offer to delete the signed-in user', async () => {
     renderPage();
-    await table().findByText('Olivia Owner');
+    await (await findTable()).findByText('Olivia Owner');
     expect(table().queryByRole('button', { name: 'Delete Olivia Owner' })).not.toBeInTheDocument();
     expect(table().getByRole('button', { name: 'Delete Ben Carter' })).toBeInTheDocument();
   });
@@ -382,7 +384,7 @@ describe('TeamPage', () => {
   it('opens the detail dialog with real fields and no placeholder text', async () => {
     const user = userEvent.setup();
     renderPage();
-    await table().findByText('Ben Carter');
+    await (await findTable()).findByText('Ben Carter');
     await user.click(table().getByRole('button', { name: 'View details for Ben Carter' }));
     const dialog = screen.getByRole('dialog');
     expect(within(dialog).getByText('ben@x.com')).toBeInTheDocument();

@@ -36,6 +36,7 @@ export function ConversationList({ conversations, customerNames, selectedId, onS
               <div className="mt-1 text-sm text-slate-500 dark:text-slate-400 truncate">
                 {customer ?? 'Customer'} · {CHANNEL_LABELS[c.channelType] ?? c.channelType} ·{' '}
                 {formatDate(c.lastMessageAt ?? c.updatedAt)}
+                {c.handlingMode === 'HUMAN' ? ' · Team handling' : ''}
               </div>
             </button>
           </li>

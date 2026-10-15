@@ -119,6 +119,8 @@ function renderPage(permissions: string[] = ALL) {
 }
 
 const table = () => within(screen.getByRole('table'));
+/** Waits for the table to appear (the page shows a loading skeleton first), then scopes queries to it. */
+const findTable = async () => within(await screen.findByRole('table'));
 
 describe('CustomersPage', () => {
   beforeEach(() => {
@@ -130,7 +132,7 @@ describe('CustomersPage', () => {
 
   it('renders customers from the API with a real count', async () => {
     renderPage();
-    expect(await table().findByText('Ada Lovelace')).toBeInTheDocument();
+    expect(await (await findTable()).findByText('Ada Lovelace')).toBeInTheDocument();
     expect(table().getByText('Prospect')).toBeInTheDocument();
     expect(screen.getByText('2 customers')).toBeInTheDocument();
   });
@@ -158,7 +160,7 @@ describe('CustomersPage', () => {
     renderPage();
     await screen.findByText('Offline');
     await user.click(screen.getByRole('button', { name: /try again/i }));
-    expect(await table().findByText('Ada Lovelace')).toBeInTheDocument();
+    expect(await (await findTable()).findByText('Ada Lovelace')).toBeInTheDocument();
   });
 
   it('is restricted and makes no request without customers:read', () => {
@@ -170,7 +172,7 @@ describe('CustomersPage', () => {
   it('searches and filters by status, and reports no matches', async () => {
     const user = userEvent.setup();
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.type(screen.getByLabelText('Search customers'), 'ben@');
     expect(table().getByText('Ben Carter')).toBeInTheDocument();
@@ -184,12 +186,12 @@ describe('CustomersPage', () => {
     await user.type(screen.getByLabelText('Search customers'), 'zzz');
     expect(screen.getByText('No matching customers')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /clear filters/i }));
-    expect(await table().findByText('Ben Carter')).toBeInTheDocument();
+    expect(await (await findTable()).findByText('Ben Carter')).toBeInTheDocument();
   });
 
   it('hides write controls for a read-only user', async () => {
     renderPage(['customers:read']);
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
     expect(screen.queryByRole('button', { name: /add customer/i })).not.toBeInTheDocument();
     expect(table().queryByRole('button', { name: /^edit /i })).not.toBeInTheDocument();
     expect(table().queryByRole('button', { name: /^delete /i })).not.toBeInTheDocument();
@@ -199,7 +201,7 @@ describe('CustomersPage', () => {
     const user = userEvent.setup();
     mocked.createCustomer.mockResolvedValue(cust({ _id: 'c-9', name: 'Grace Hopper' }));
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.click(screen.getByRole('button', { name: /add customer/i }));
     const dialog = screen.getByRole('dialog');
@@ -221,7 +223,7 @@ describe('CustomersPage', () => {
     const user = userEvent.setup();
     mocked.createCustomer.mockRejectedValue(new Error('A customer with this email already exists in this company.'));
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
     await user.click(screen.getByRole('button', { name: /add customer/i }));
     const dialog = screen.getByRole('dialog');
     await user.type(within(dialog).getByLabelText(/name \*/i), 'Ada Again');
@@ -235,7 +237,7 @@ describe('CustomersPage', () => {
     const user = userEvent.setup();
     mocked.updateCustomer.mockResolvedValue({ ...ada, name: 'Ada King' });
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.click(table().getByRole('button', { name: 'Edit Ada Lovelace' }));
     const dialog = screen.getByRole('dialog');
@@ -263,7 +265,7 @@ describe('CustomersPage', () => {
     mocked.fetchCustomers.mockResolvedValueOnce(all).mockResolvedValue([ben]);
     mocked.deleteCustomer.mockResolvedValue({ ...ada, isDeleted: true });
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
 
     await user.click(table().getByRole('button', { name: 'Delete Ada Lovelace' }));
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: /cancel/i }));
@@ -280,7 +282,7 @@ describe('CustomersPage', () => {
     const user = userEvent.setup();
     mocked.deleteCustomer.mockRejectedValue(new Error('Customer not found.'));
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
     await user.click(table().getByRole('button', { name: 'Delete Ada Lovelace' }));
     const dialog = screen.getByRole('dialog');
     await user.click(within(dialog).getByRole('button', { name: /remove customer/i }));
@@ -316,7 +318,7 @@ describe('CustomersPage', () => {
       },
     ]);
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
     await user.click(table().getByRole('button', { name: 'View details for Ada Lovelace' }));
 
     const dialog = screen.getByRole('dialog');
@@ -330,7 +332,7 @@ describe('CustomersPage', () => {
   it('does not request identities or conversations without those permissions', async () => {
     const user = userEvent.setup();
     renderPage(['customers:read']);
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
     await user.click(table().getByRole('button', { name: 'View details for Ada Lovelace' }));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(mocked.fetchCustomerIdentities).not.toHaveBeenCalled();
@@ -350,7 +352,7 @@ describe('CustomersPage', () => {
       updatedAt: '',
     });
     renderPage();
-    await table().findByText('Ada Lovelace');
+    await (await findTable()).findByText('Ada Lovelace');
     await user.click(table().getByRole('button', { name: 'View details for Ada Lovelace' }));
     const dialog = screen.getByRole('dialog');
 

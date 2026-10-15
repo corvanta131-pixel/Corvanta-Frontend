@@ -394,3 +394,11 @@ Root causes: (1) `AppProviders` wrapped children in `<BrowserRouter>` while `mai
 
 ## Stage J (Inbox, read-only) and Stage Q (Audit) — implemented, validation pending
 Backend added: GET /roles, GET /audit-logs (+ employee role assignment refuses platform-admin). Frontend added: Inbox, Audit page, role picker, shared `hasStringField` helper. Messages are read-only; sending is Stage K. See docs/ for the tracker and matrix.
+
+
+## Website chat widget (Stage M, web chat only) — implemented, validation pending
+Backend: public widget API (`/api/v1/widget/*`), per-channel CORS, visitor-scoped signed sessions, rate limits, `embed.js`, admin endpoints `GET/PUT /channels/:id/widget`. Widget settings live in `Channel.widget`, which the generic channel endpoints cannot write. Frontend: Channels page (setup, agent, allowed websites, brand, embed code, key rotation). Setup guide: docs/WEB_CHAT_SETUP.md. Known limits: staff cannot reply from the Inbox yet; rate-limit counters are per process.
+
+
+## Inbox: human handoff and replies (Stages J/K) — implemented, validation pending
+Backend: `POST /conversations/:id/replies` (HUMAN mode only), `PATCH /conversations/:id` now accepts `handlingMode` and `assigneeId`, `Conversation.assigneeId`. Frontend: take over / hand back, assignment, reply box with per-conversation drafts, auto-refresh (15 s list, 5 s messages, paused in background tabs). Also fixed my own earlier test bugs: table/list helpers that did not wait for loading, a list response given to a single-record call, a search term not present in the fixture.

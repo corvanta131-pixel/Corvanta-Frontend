@@ -32,7 +32,7 @@ describe('employee API service', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('uses explicit HTTP methods and paths', async () => {
-    mocked.get.mockResolvedValue({ data: { success: true, data: [record] } });
+    mocked.get.mockResolvedValueOnce({ data: { success: true, data: [record] } });
     mocked.post.mockResolvedValue({ data: { success: true, data: record } });
     mocked.patch.mockResolvedValue({ data: { success: true, data: record } });
     mocked.delete.mockResolvedValue({ data: { success: true, data: record } });
@@ -40,6 +40,7 @@ describe('employee API service', () => {
     await fetchEmployees();
     expect(mocked.get).toHaveBeenCalledWith('/users/');
 
+    mocked.get.mockResolvedValueOnce({ data: { success: true, data: record } });
     await fetchEmployee('e1');
     expect(mocked.get).toHaveBeenLastCalledWith('/users/e1');
 

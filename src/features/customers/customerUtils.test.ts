@@ -28,7 +28,7 @@ describe('filterCustomers', () => {
   it('searches name, email and phone case-insensitively', () => {
     expect(filterCustomers(list, { search: 'ADA', status: '' }).map((c) => c._id)).toEqual(['1']);
     expect(filterCustomers(list, { search: 'ben@', status: '' }).map((c) => c._id)).toEqual(['2']);
-    expect(filterCustomers(list, { search: '0801', status: '' }).map((c) => c._id)).toEqual(['1']);
+    expect(filterCustomers(list, { search: '8011', status: '' }).map((c) => c._id)).toEqual(['1']);
   });
 
   it('filters by status and tolerates customers without email/phone', () => {

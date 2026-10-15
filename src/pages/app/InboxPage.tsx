@@ -27,6 +27,8 @@ export function InboxPage() {
   const canRead = can('conversations:read', user);
   const canReadMessages = can('conversations:messages:read', user);
   const canUpdate = can('conversations:update', user);
+  const canSend = can('conversations:send', user);
+  const canReadEmployees = can('employees:read', user);
   const canReadCustomers = can('customers:read', user);
 
   const { data, isLoading, isError, error, refetch, isFetching } = useConversations(canRead);
@@ -35,6 +37,8 @@ export function InboxPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedId = searchParams.get('c');
   const [filters, setFilters] = useState<ConversationFilterState>(EMPTY);
+  // Unsent replies, kept per conversation so switching conversations never loses what was typed.
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
 
   const conversations = useMemo(() => data ?? [], [data]);
   const customerNames = useMemo(
@@ -170,6 +174,10 @@ export function InboxPage() {
                 customer={selectedCustomer}
                 canReadMessages={canReadMessages}
                 canUpdate={canUpdate}
+                canSend={canSend}
+                canReadEmployees={canReadEmployees}
+                draft={drafts[selected._id] ?? ''}
+                onDraftChange={(value) => setDrafts((prev) => ({ ...prev, [selected._id]: value }))}
                 onBack={clearSelection}
               />
             ) : selectedId ? (
