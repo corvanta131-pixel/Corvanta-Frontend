@@ -13,6 +13,7 @@ import { TeamPage } from '../pages/app/TeamPage';
 import { CustomersPage } from '../pages/app/CustomersPage';
 import { InboxPage } from '../pages/app/InboxPage';
 import { AgentsPage } from '../pages/app/AgentsPage';
+import { GetStartedPage } from '../pages/app/GetStartedPage';
 import { ChannelsPage } from '../pages/app/ChannelsPage';
 import { KnowledgePage } from '../pages/app/KnowledgePage';
 import { WorkflowsPage } from '../pages/app/WorkflowsPage';
@@ -46,6 +47,7 @@ export const router = createBrowserRouter([
             element: <AppLayout />,
             children: [
               { path: 'dashboard', element: <DashboardPage /> },
+              { path: 'get-started', element: <GetStartedPage /> },
               { path: 'company', element: <CompanyPage /> },
               { path: 'services', element: <ServicesPage /> },
               { path: 'team', element: <TeamPage /> },

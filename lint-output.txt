@@ -2,14 +2,3 @@
 > corvanta-frontend@0.0.0 lint
 > eslint . --report-unused-disable-directives --max-warnings 0
 
-
-/home/louis/corvanta/corvanta-frontend/src/pages/app/KnowledgePage.tsx
-  257:14  error  Parsing error: Expected corresponding JSX closing tag for 'h2'
-
-/home/louis/corvanta/corvanta-frontend/src/services/api/knowledgeDocument.ts
-  2:36  error  'IndexResult' is defined but never used        @typescript-eslint/no-unused-vars
-  2:49  error  'KnowledgeDocument' is defined but never used  @typescript-eslint/no-unused-vars
-  2:80  error  'SearchResult' is defined but never used       @typescript-eslint/no-unused-vars
-
-✖ 4 problems (4 errors, 0 warnings)
-

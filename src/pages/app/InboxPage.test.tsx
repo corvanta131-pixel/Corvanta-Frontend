@@ -333,6 +333,25 @@ describe('InboxPage', () => {
     expect(screen.getByText(/The AI assistant is handling this conversation\.$/)).toBeInTheDocument();
   });
 
+  it('shows what the channel provider said about delivery, including failures with the reason', async () => {
+    conv.fetchMessages.mockResolvedValue([
+      { _id: 'm1', companyId: 'c1', conversationId: 'c-1', senderType: 'user', body: 'On our way', createdAt: '2025-01-02T10:00:00.000Z', updatedAt: '', delivery: { status: 'delivered', error: null, channelType: 'whatsapp' } },
+      { _id: 'm2', companyId: 'c1', conversationId: 'c-1', senderType: 'user', body: 'Second note', createdAt: '2025-01-02T10:01:00.000Z', updatedAt: '', delivery: { status: 'failed', error: 'Outside the 24-hour window', channelType: 'whatsapp' } },
+    ]);
+    renderPage(ALL, '/inbox?c=c-1');
+    const thread = within(await screen.findByRole('list', { name: 'Messages' }));
+    expect(await thread.findByText('Delivered')).toBeInTheDocument();
+    expect(thread.getByRole('alert')).toHaveTextContent('Not delivered: Outside the 24-hour window');
+  });
+
+  it('shows no delivery line for messages without delivery information', async () => {
+    renderPage(ALL, '/inbox?c=c-1');
+    const thread = within(await screen.findByRole('list', { name: 'Messages' }));
+    await thread.findByText('Where is my order?');
+    expect(thread.queryByRole('alert')).not.toBeInTheDocument();
+    expect(thread.queryByText('Delivered')).not.toBeInTheDocument();
+  });
+
   // ---- handoff, assignment and replying ---------------------------------------------------
 
   it('shows who is handling the conversation and no reply box while the AI is', async () => {

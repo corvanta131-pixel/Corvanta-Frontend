@@ -37,6 +37,8 @@ export interface Message {
   body: string;
   createdAt: string;
   updatedAt: string;
+  /** Present only for messages sent through an external channel (WhatsApp, SMS, email, ...). */
+  delivery?: { status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed'; error: string | null; channelType: string } | undefined;
   metadata?: {
     provider?: string | undefined;
     model?: string | undefined;

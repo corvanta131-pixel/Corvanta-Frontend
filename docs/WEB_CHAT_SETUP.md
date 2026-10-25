@@ -13,15 +13,17 @@ Everything they say lands in the Inbox.
    - `TRUST_PROXY=1` when running behind a load balancer (AWS ALB / Elastic Beanstalk) so rate limits apply per visitor.
    - Optional: `WIDGET_TOKEN_SECRET` (a long random string) to sign visitor sessions independently of your login secrets.
 
-## Create an active AI agent (until the Agents screen exists)
-Agents start as `draft` and only `active` agents can answer. Create one with your owner access token:
+## Create an active AI agent
+Open **AI Agents** in the dashboard and press **Add agent**:
+1. Give it a name and write its instructions (who it is, what it may help with, when to hand over to a person).
+2. Choose the provider and model. "Test mode" returns canned replies and needs no key; "OpenAI" needs `OPENAI_API_KEY` on the server, and the screen warns you while it is missing.
+3. Optionally tick the knowledge bases it may use.
+4. Save, then press **Activate**. Only an active agent can answer visitors.
 
-    curl -X POST https://api.campusify.net/api/v1/agents \
-      -H "Authorization: Bearer YOUR_ACCESS_TOKEN" -H "Content-Type: application/json" \
-      -d '{"name":"Support assistant","status":"active","provider":"openai","model":"gpt-4o-mini",
-           "promptTemplate":"You are the friendly customer support assistant for ACME Ltd. Answer using the provided knowledge. If you are not sure, say a team member will follow up.","temperature":0.2,"maxTokens":400}'
+(Command-line alternative: POST /api/v1/agents with `"status":"active"`, `"provider"`, `"model"` and `"promptTemplate"`.)
 
-Use `"provider":"mock","model":"mock-model"` to test without an OpenAI key.
+## Teach the assistant about the business
+Open **Knowledge**, create a knowledge base, and **Add document**: paste policies, prices, opening hours and common answers (text only; file upload is not available yet). Keep documents **Published**: only published documents are used in answers. Use **Test what your assistant can find** with the "Keywords" search to check that a customer question finds the right document. Then edit your agent and tick the knowledge base. Indexing is optional for website chat; it is only needed for meaning-based search.
 
 ## Turn the widget on
 1. Open **Channels** in the dashboard, click **Set up website chat**.

@@ -26,6 +26,7 @@ interface BreadcrumbItem {
 
 const routeBreadcrumbs: Record<string, BreadcrumbItem[]> = {
   '/dashboard': [{ label: 'Dashboard' }],
+  '/get-started': [{ label: 'Get started' }],
   '/company': [{ label: 'Company' }],
   '/services': [{ label: 'Company' }, { label: 'Services' }],
   '/team': [{ label: 'Company' }, { label: 'Team' }],

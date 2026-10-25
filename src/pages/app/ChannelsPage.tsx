@@ -5,12 +5,11 @@ import { Button } from '../../components/ui/Button';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/Alert';
 import { Card, CardContent } from '../../components/ui/Card';
 import { WebChatPanel } from '../../components/channels/WebChatPanel';
+import { MessagingChannels } from '../../components/channels/MessagingChannels';
 import { useAppSelector } from '../../hooks';
 import { can } from '../../utils/permissions';
 import { getErrorMessage, isForbiddenError } from '../../utils/apiError';
 import { useChannels, useCreateWebchatChannel } from '../../features/channels/hooks';
-
-const NOT_YET = ['WhatsApp', 'Instagram', 'Messenger', 'SMS', 'Email'];
 
 export function ChannelsPage() {
   const user = useAppSelector((state) => state.auth.user);
@@ -105,13 +104,25 @@ export function ChannelsPage() {
             )}
           </section>
 
+          <section aria-labelledby="messaging-heading" className="space-y-4">
+            <h2 id="messaging-heading" className="text-lg font-semibold">
+              Messaging channels
+            </h2>
+            <MessagingChannels
+              channels={data ?? []}
+              canCreate={canCreate}
+              canUpdate={canUpdate}
+              canReadAgents={canReadAgents}
+            />
+          </section>
+
           <section aria-labelledby="other-channels-heading">
             <h2 id="other-channels-heading" className="text-lg font-semibold">
-              Other channels
+              Not available yet
             </h2>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              {NOT_YET.join(', ')} are not available yet. They need connections to those services that haven’t been
-              built.
+              X (Twitter) and TikTok are not available yet. Their messaging access needs approved business API accounts, which Corvanta
+              does not connect to today.
             </p>
           </section>
         </>

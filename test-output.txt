@@ -1,0 +1,125 @@
+
+ RUN  v2.1.9 /home/louis/corvanta/corvanta-frontend
+
+ ✓ src/pages/app/AgentsPage.test.tsx (18 tests) 7778ms
+   ✓ AgentsPage > shows loading, then an error with retry 492ms
+   ✓ AgentsPage > creates an agent with the exact payload, including chosen knowledge 965ms
+   ✓ AgentsPage > blocks invalid input with field messages and sends nothing 706ms
+   ✓ AgentsPage > offers only the models of the chosen provider and warns when it is not set up 654ms
+   ✓ AgentsPage > keeps the form open and shows the server error when creation fails 650ms
+   ✓ AgentsPage > prefills edit mode and sends every field including the required name 996ms
+   ✓ AgentsPage > activates and disables with the full payload, and reports failures 322ms
+   ✓ AgentsPage > requires confirmation to delete; cancel does nothing; failure keeps the agent 654ms
+   ✓ AgentsPage > deletes after confirmation with the right id 358ms
+   ✓ AgentsPage > does not request knowledge bases without knowledge:read and says so in the form 330ms
+   ✓ AgentsPage > asks before discarding unsaved changes 1119ms
+ ✓ src/pages/app/InboxPage.test.tsx (28 tests) 10212ms
+   ✓ InboxPage > lists conversations with real customer names and a count 1377ms
+   ✓ InboxPage > shows loading, empty and error states, and retries 364ms
+   ✓ InboxPage > searches by title or customer and filters by status 760ms
+   ✓ InboxPage > opens a conversation, loads its messages and shows customer context 327ms
+   ✓ InboxPage > changes status with the exact payload and confirms only after success 446ms
+   ✓ InboxPage > shows the server error and keeps the old status when the change fails 380ms
+   ✓ InboxPage > takes over with the exact payload, then offers the reply box 470ms
+   ✓ InboxPage > hands back to the AI, and shows the server reason when it cannot 324ms
+   ✓ InboxPage > sends a reply with the exact text and clears the box only after success 1158ms
+   ✓ InboxPage > keeps the draft and shows the reason when a reply fails 525ms
+   ✓ InboxPage > sends with Ctrl+Enter 435ms
+   ✓ InboxPage > keeps an unsent draft when switching to another conversation and back 728ms
+   ✓ InboxPage > assigns to an active teammate with the exact payload and can unassign 352ms
+   ✓ InboxPage > unassigns with a null assignee 329ms
+ ✓ src/pages/app/KnowledgePage.test.tsx (22 tests) 13856ms
+   ✓ KnowledgePage > shows loading, then an error with retry 1699ms
+   ✓ KnowledgePage > selects the first knowledge base, loads its documents, and switches on click 500ms
+   ✓ KnowledgePage > shows status, indexing and plain-language notes for each document 374ms
+   ✓ KnowledgePage > shows a document error with retry 361ms
+   ✓ KnowledgePage > creates a knowledge base with the exact payload and selects it 749ms
+   ✓ KnowledgePage > validates and shows server errors for a knowledge base 1145ms
+   ✓ KnowledgePage > edits a knowledge base with a prefilled form and the required name 870ms
+   ✓ KnowledgePage > asks before deleting a knowledge base, and keeps it when deletion fails 976ms
+   ✓ KnowledgePage > adds a document that defaults to published, with the exact payload 1215ms
+   ✓ KnowledgePage > blocks a document with a short title and keeps the form open on server errors 951ms
+   ✓ KnowledgePage > edits a document, sending title, content, summary and status 629ms
+   ✓ KnowledgePage > asks before discarding unsaved document edits 1061ms
+   ✓ KnowledgePage > publishes and unpublishes with only the title and status 493ms
+   ✓ KnowledgePage > indexes a document and reports the result, or the failure 380ms
+   ✓ KnowledgePage > asks before deleting a document and reports failures 404ms
+   ✓ KnowledgePage > tests what the assistant would find, defaulting to keyword search like the website chat 483ms
+   ✓ KnowledgePage > explains empty search results differently for each mode, and shows errors 746ms
+ ✓ src/pages/app/TeamPage.test.tsx (20 tests) 8747ms
+   ✓ TeamPage > renders employees returned by the API with a real count 775ms
+   ✓ TeamPage > shows an error (not an empty list) on failure and recovers on retry 431ms
+   ✓ TeamPage > honours the backend "*" wildcard permission 302ms
+   ✓ TeamPage > searches case-insensitively and reports when nothing matches 960ms
+   ✓ TeamPage > filters by status and department 523ms
+   ✓ TeamPage > hides create, edit and delete controls for a read-only user 318ms
+   ✓ TeamPage > creates an employee with the exact payload and confirms only after success 1027ms
+   ✓ TeamPage > offers company roles when permitted and sends the chosen roleId 888ms
+   ✓ TeamPage > keeps the form open and shows the server error when creation fails 631ms
+   ✓ TeamPage > does not submit an invalid create form 370ms
+   ✓ TeamPage > prefills edit mode and submits the required name and email 545ms
+   ✓ TeamPage > requires confirmation before deleting and does nothing on cancel 403ms
+   ✓ TeamPage > deletes after confirmation and removes the employee from the list 390ms
+   ✓ TeamPage > keeps the employee and shows an error when deletion fails 363ms
+ ✓ src/pages/app/MessagingChannels.test.tsx (13 tests) 7029ms
+   ✓ Messaging channels > lists the five providers with their real state 771ms
+   ✓ Messaging channels > shows what is missing and never calls a channel live until the server says so 366ms
+   ✓ Messaging channels > never shows a saved secret, only a hint, and sends only the fields that changed 1233ms
+   ✓ Messaging channels > sends no credentials when none were edited, and shows server errors without success messages 408ms
+   ✓ Messaging channels > tests the connection and reports the provider’s answer, good or bad 483ms
+   ✓ Messaging channels > only allows a test once the credentials are saved and unchanged 884ms
+   ✓ Messaging channels > shows the webhook address and verify token, and copies them 679ms
+   ✓ Messaging channels > email: shows a new signing secret once, and rotating asks first 558ms
+   ✓ Messaging channels > asks before removing credentials, and does nothing on cancel 591ms
+ ✓ src/pages/app/CustomersPage.test.tsx (14 tests) 6455ms
+   ✓ CustomersPage > renders customers from the API with a real count 912ms
+   ✓ CustomersPage > retries after a failure 364ms
+   ✓ CustomersPage > searches and filters by status, and reports no matches 864ms
+   ✓ CustomersPage > creates a customer with the exact payload, confirming only after success 719ms
+   ✓ CustomersPage > keeps the form open with the server error when creation fails 652ms
+   ✓ CustomersPage > prefills edit mode and submits the required name 486ms
+   ✓ CustomersPage > requires confirmation to delete; cancel does nothing; confirm removes it 523ms
+   ✓ CustomersPage > keeps the customer and shows the error when deletion fails 305ms
+   ✓ CustomersPage > shows details with identities and conversation history from the API 336ms
+   ✓ CustomersPage > links a new channel identity with the exact payload 727ms
+ ✓ src/pages/app/GetStartedPage.test.tsx (9 tests) 2041ms
+   ✓ GetStartedPage > shows a brand-new workspace as 0 of 4 with a link for each step 638ms
+ ✓ src/pages/app/CompanyPage.test.tsx (6 tests) 846ms
+   ✓ CompanyPage > renders company information from valid data 351ms
+ ✓ src/pages/app/ChannelsPage.test.tsx (14 tests) 4442ms
+   ✓ ChannelsPage > shows loading, then an error with retry 610ms
+   ✓ ChannelsPage > saves the exact settings payload and confirms only after success 1340ms
+   ✓ ChannelsPage > asks before generating a new embed code, and does nothing on cancel 680ms
+ ✓ src/features/setup/setupSteps.test.ts (9 tests) 28ms
+ ✓ src/components/employees/EmployeeForm.test.tsx (12 tests) 1296ms
+   ✓ EmployeeForm > shows field errors and does not submit invalid input 574ms
+   ✓ EmployeeForm > submits the exact payload for a valid create 411ms
+ ✓ src/pages/app/AuditPage.test.tsx (6 tests) 2335ms
+   ✓ AuditPage > renders records with actor, action, record and redacted details 348ms
+   ✓ AuditPage > shows loading, error with retry, and the empty state 405ms
+   ✓ AuditPage > paginates with the server-provided page count 307ms
+   ✓ AuditPage > applies filters, resets to page 1, and clears them 787ms
+ ✓ src/services/api/knowledge.test.ts (6 tests) 37ms
+ ✓ src/services/api/channel.test.ts (4 tests) 43ms
+ ✓ src/pages/DashboardPage.test.tsx (3 tests) 825ms
+   ✓ DashboardPage > renders authenticated user information 393ms
+   ✓ DashboardPage > renders loading skeletons while data is loading 319ms
+ ✓ src/features/users/employeeUtils.test.ts (8 tests) 77ms
+ ✓ src/services/api/conversation.test.ts (4 tests) 46ms
+ ✓ src/services/api/customer.test.ts (3 tests) 28ms
+ ✓ src/services/api/employee.test.ts (3 tests) 24ms
+ ✓ src/components/customers/CustomerForm.test.tsx (4 tests) 1441ms
+   ✓ CustomerForm > blocks invalid submissions with field errors 629ms
+   ✓ CustomerForm > submits the exact payload 763ms
+ ✓ src/features/agents/agentUtils.test.ts (7 tests) 18ms
+ ✓ src/services/api/agent.test.ts (3 tests) 29ms
+ ✓ src/features/knowledge/knowledgeUtils.test.ts (6 tests) 26ms
+ ✓ src/services/api/audit.test.ts (3 tests) 22ms
+ ✓ src/features/customers/customerUtils.test.ts (2 tests) 10ms
+ ✓ src/app/providers/AppProviders.test.tsx (1 test) 190ms
+
+ Test Files  26 passed (26)
+      Tests  228 passed (228)
+   Start at  07:27:15
+   Duration  70.09s (transform 5.58s, setup 7.18s, collect 43.94s, tests 67.88s, environment 63.32s, prepare 8.85s)
+

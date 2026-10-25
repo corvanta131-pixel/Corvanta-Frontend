@@ -402,3 +402,15 @@ Backend: public widget API (`/api/v1/widget/*`), per-channel CORS, visitor-scope
 
 ## Inbox: human handoff and replies (Stages J/K) — implemented, validation pending
 Backend: `POST /conversations/:id/replies` (HUMAN mode only), `PATCH /conversations/:id` now accepts `handlingMode` and `assigneeId`, `Conversation.assigneeId`. Frontend: take over / hand back, assignment, reply box with per-conversation drafts, auto-refresh (15 s list, 5 s messages, paused in background tabs). Also fixed my own earlier test bugs: table/list helpers that did not wait for loading, a list response given to a single-record call, a search term not present in the fixture.
+
+
+## AI Agents screen (Stage L) — implemented, validation pending
+Backend: `GET /agents/options` (allowed providers/models/limits from server policy; reports whether OpenAI has a real key; never returns keys). Frontend: Agents page (cards, create/edit form driven by the options, activate/disable, delete with confirmation, readiness warnings, unsaved-changes guard, knowledge attachment when the user can read knowledge bases). `fetchAgents` (names only, used by Channels) is unchanged; `listAgents` returns full records.
+
+
+## Knowledge screens (Stages N/O) — implemented, validation pending
+Backend: deleting a document also deletes its stored chunks; `POST /knowledge-bases/search` accepts `mode` (keyword | semantic, default semantic). Frontend: Knowledge page (knowledge bases, text documents, publish/unpublish, index/re-index/remove index, plain-language notes, search tester). Important facts: documents default to draft on the server, the AI only uses published documents, there is no file upload, and indexing is synchronous.
+
+
+## Messaging channels (Stage M) — implemented against provider docs, NOT verified live
+Backend: `services/connectors/` (core, providers for WhatsApp Cloud API, Messenger, Instagram, Twilio SMS, Resend email; connectorService for encrypted credentials; inboundService for inbound processing, AI replies over the channel, delivery receipts, staff reply delivery). Public webhook: `/api/v1/webhooks/c/:webhookKey`. Admin: `/channels/:id/connector`. Needs env: CHANNEL_CREDENTIAL_KEY (>= 32 chars), PUBLIC_API_URL, TRUST_PROXY behind a load balancer. Frontend: Messaging channels section + connector panel on the Channels page; delivery status in the Inbox. Not built: X (Twitter), TikTok, attachments, WhatsApp template messages (needed outside the 24-hour window), email threading and attachments.

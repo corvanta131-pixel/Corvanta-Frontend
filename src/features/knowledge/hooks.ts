@@ -69,6 +69,7 @@ export function useDeleteKnowledgeBase() {
     retry: false,
     onSuccess: (_result, id) => {
       queryClient.removeQueries({ queryKey: knowledgeQueryKeys.documents(id) });
+      // Agents list the knowledge they use, so refresh them as well.
       queryClient.invalidateQueries({ queryKey: knowledgeQueryKeys.all });
       queryClient.invalidateQueries({ queryKey: ['agents'] });
     },

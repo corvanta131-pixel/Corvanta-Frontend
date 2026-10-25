@@ -43,3 +43,48 @@ export interface WidgetSettingsInput {
   color?: string | undefined;
   rotateKey?: boolean | undefined;
 }
+
+/** One credential field a messaging provider needs. Secret values are never returned, only a hint. */
+export interface ConnectorField {
+  name: string;
+  label: string;
+  secret: boolean;
+  required: boolean;
+  help: string;
+  configured: boolean;
+  /** The saved value for ordinary fields, or "••••1234" for secrets. */
+  display: string | null;
+}
+
+/** Admin view of a messaging connection, from GET/PUT /channels/:id/connector. */
+export interface ConnectorView {
+  channelId: string;
+  type: ChannelType;
+  label: string;
+  status: ChannelStatus;
+  enabled: boolean;
+  storageReady: boolean;
+  credentialsSaved: boolean;
+  /** True only when the provider accepted the saved credentials in a connection test. */
+  verified: boolean;
+  /** True only when everything needed to answer customers is in place. */
+  ready: boolean;
+  problems: string[];
+  fields: ConnectorField[];
+  webhook: { url: string | null; verifyToken: string | null; needsSigningSecret: boolean };
+  settings: { agentId: string | null; agentName: string | null; agentStatus: string | null; aiReplies: boolean };
+  lastTest: { ok: boolean; at: string; message: string } | null;
+  /** Shown once, right after it is created or rotated. */
+  revealed?: { signingSecret?: string | undefined } | undefined;
+}
+
+export interface ConnectorSaveInput {
+  credentials?: Record<string, string> | undefined;
+  agentId?: string | null | undefined;
+  aiReplies?: boolean | undefined;
+  enabled?: boolean | undefined;
+}
+
+/** Channel types that connect to an outside messaging provider (website chat has its own page). */
+export const MESSAGING_TYPES = ['whatsapp', 'messenger', 'instagram', 'sms', 'email'] as const;
+export type MessagingType = (typeof MESSAGING_TYPES)[number];

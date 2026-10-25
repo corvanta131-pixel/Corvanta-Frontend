@@ -4,6 +4,7 @@ import { KpiSummary } from '../components/dashboard/KpiSummary';
 import { RecentConversations } from '../components/dashboard/RecentConversations';
 import { RecentCustomers } from '../components/dashboard/RecentCustomers';
 import { QuickActions } from '../components/dashboard/QuickActions';
+import { GetStartedBanner } from '../components/setup/GetStartedBanner';
 import { can } from '../utils/permissions';
 import { useAppSelector } from '../hooks';
 import type { DashboardStats } from '../features/dashboard/types';
@@ -51,6 +52,8 @@ export function DashboardPage() {
           </p>
         </div>
       </div>
+
+      <GetStartedBanner />
 
       <section aria-labelledby="kpi-heading">
         <KpiSummary stats={stats} loading={isLoading} error={isError} />

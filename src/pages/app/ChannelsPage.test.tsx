@@ -299,8 +299,8 @@ describe('ChannelsPage', () => {
     expect(ch.saveWidgetSettings.mock.calls[0]?.[1]).toEqual({ rotateKey: true });
   });
 
-  it('says plainly that other channels are not available yet', async () => {
+  it('says plainly that X and TikTok are not available yet', async () => {
     renderPage();
-    expect(await screen.findByText(/WhatsApp, Instagram, Messenger, SMS, Email are not available yet/)).toBeInTheDocument();
+    expect(await screen.findByText(/X \(Twitter\) and TikTok are not available yet/)).toBeInTheDocument();
   });
 });
