@@ -33,7 +33,8 @@ export function CustomerIdentities({ customerId, canCreate, canDelete }: Props) 
   const canSubmit = channelType !== '' && trimmed.length > 0 && trimmed.length <= 255;
 
   const add = async () => {
-    if (!canSubmit || channelType === '') return;
+    // Checked directly (not through `canSubmit`) so TypeScript narrows `channelType` to a real channel type.
+    if (channelType === '' || trimmed.length === 0 || trimmed.length > 255) return;
     try {
       await createMutation.mutateAsync({ customerId, channelType, externalId: trimmed });
       setChannelType('');

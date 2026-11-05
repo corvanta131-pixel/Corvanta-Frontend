@@ -13,6 +13,7 @@ import { EmployeeForm } from '../../components/employees/EmployeeForm';
 import { DeleteConfirmDialog } from '../../components/employees/DeleteConfirmDialog';
 import { useAppSelector } from '../../hooks';
 import { useRoles } from '../../features/roles/hooks';
+import { useSendInvite } from '../../features/auth/accountHooks';
 import { can } from '../../utils/permissions';
 import { getErrorMessage, isForbiddenError } from '../../utils/apiError';
 import {
@@ -42,6 +43,8 @@ export function TeamPage() {
   const { data, isLoading, isError, error, refetch, isFetching } = useEmployees(canRead);
   const canReadRoles = can('roles:read', currentUser) && (canCreate || canUpdate);
   const { data: roles } = useRoles(canReadRoles);
+  const inviteMutation = useSendInvite();
+  const [invitingId, setInvitingId] = useState<string | null>(null);
   const createMutation = useCreateEmployee();
   const updateMutation = useUpdateEmployee();
   const deleteMutation = useDeleteEmployee();
@@ -110,6 +113,18 @@ export function TeamPage() {
       closeDelete();
     } catch {
       // The failure is shown inside the dialog via deleteMutation.error; nothing was removed.
+    }
+  };
+
+  const handleInvite = async (e: Employee) => {
+    setInvitingId(e._id);
+    try {
+      await inviteMutation.mutateAsync(e._id);
+      toast.success(`An invitation was sent to ${e.email}.`);
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'The invitation could not be sent.'));
+    } finally {
+      setInvitingId(null);
     }
   };
 
@@ -224,6 +239,8 @@ export function TeamPage() {
                   onEdit={openEdit}
                   onDelete={openDelete}
                   onDetail={(e) => setDetailId(e._id)}
+                  onInvite={canUpdate ? (e) => void handleInvite(e) : undefined}
+                  invitingId={invitingId}
                 />
               </div>
               <ul className="space-y-3 md:hidden" aria-label="Team members">
@@ -237,6 +254,8 @@ export function TeamPage() {
                     onEdit={openEdit}
                     onDelete={openDelete}
                     onDetail={(emp) => setDetailId(emp._id)}
+                    onInvite={canUpdate ? (emp) => void handleInvite(emp) : undefined}
+                    invitingId={invitingId}
                   />
                 ))}
               </ul>

@@ -12,6 +12,8 @@ interface EmployeeCardProps {
   onEdit: (employee: Employee) => void;
   onDelete: (employee: Employee) => void;
   onDetail: (employee: Employee) => void;
+  onInvite?: ((employee: Employee) => void) | undefined;
+  invitingId?: string | null | undefined;
 }
 
 export function EmployeeCard({
@@ -22,6 +24,8 @@ export function EmployeeCard({
   onEdit,
   onDelete,
   onDetail,
+  onInvite,
+  invitingId,
 }: EmployeeCardProps) {
   return (
     <li className="bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 p-4 hover:shadow-sm transition-shadow list-none">
@@ -78,6 +82,11 @@ export function EmployeeCard({
 
       {(canUpdate || canDelete) && (
         <div className="mt-4 flex items-center gap-2">
+          {onInvite && employee.status === 'invited' && (
+            <Button variant="outline" size="sm" disabled={invitingId === employee._id} onClick={() => onInvite(employee)} aria-label={`Send invite to ${employee.name}`}>
+              {invitingId === employee._id ? 'Sending…' : 'Send invite'}
+            </Button>
+          )}
           {canUpdate && (
             <Button
               variant="outline"

@@ -12,6 +12,7 @@ import {
   Building2,
   Sparkles,
   ChevronRight,
+  DollarSign,
 } from 'lucide-react';
 import { useAppSelector } from '../../hooks';
 import { can } from '../../utils/permissions';
@@ -27,6 +28,7 @@ interface NavItem {
 
 const mainNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
+  { label: 'Billing', href: '/billing', icon: <DollarSign className="h-5 w-5" />, permission: 'billing:read' },
   { label: 'Customers', href: '/customers', icon: <Users className="h-5 w-5" />, permission: 'customers:read' },
   { label: 'Inbox', href: '/inbox', icon: <MessageSquare className="h-5 w-5" />, permission: 'conversations:read' },
   { label: 'AI Agents', href: '/agents', icon: <Bot className="h-5 w-5" />, permission: 'agents:read' },

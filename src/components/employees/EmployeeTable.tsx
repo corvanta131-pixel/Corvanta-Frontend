@@ -11,6 +11,9 @@ interface EmployeeTableProps {
   onEdit: (employee: Employee) => void;
   onDelete: (employee: Employee) => void;
   onDetail: (employee: Employee) => void;
+  /** When set, people who have not set a password yet get a "Send invite" button. */
+  onInvite?: ((employee: Employee) => void) | undefined;
+  invitingId?: string | null | undefined;
 }
 
 export function EmployeeTable({
@@ -20,6 +23,8 @@ export function EmployeeTable({
   onEdit,
   onDelete,
   onDetail,
+  onInvite,
+  invitingId,
 }: EmployeeTableProps) {
   const th = 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400';
   return (
@@ -68,6 +73,11 @@ export function EmployeeTable({
               </td>
               <td className="px-4 py-3">
                 <div className="flex justify-end gap-2">
+                  {onInvite && e.status === 'invited' && (
+                    <Button variant="outline" size="sm" disabled={invitingId === e._id} onClick={() => onInvite(e)} aria-label={`Send invite to ${e.name}`}>
+                      {invitingId === e._id ? 'Sending…' : 'Send invite'}
+                    </Button>
+                  )}
                   {canUpdate && (
                     <Button variant="outline" size="sm" onClick={() => onEdit(e)} aria-label={`Edit ${e.name}`}>
                       Edit

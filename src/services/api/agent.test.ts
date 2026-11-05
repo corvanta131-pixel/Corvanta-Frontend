@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 
 vi.mock('./client', () => ({ default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() } }));
 
@@ -6,7 +6,8 @@ import api from './client';
 import { fetchAgents, listAgents, createAgent, updateAgent, deleteAgent, fetchAgentOptions } from './agent';
 import type { AgentInput } from '../../features/agents/types';
 
-const mocked = vi.mocked(api);
+// The client is mocked wholesale in these tests; typing its methods loosely avoids fighting Axios's own generics.
+const mocked = api as unknown as Record<'get' | 'post' | 'patch' | 'put' | 'delete', Mock>;
 const ok = (data: unknown) => ({ data: { success: true, data } });
 const record = { _id: 'a-1', name: 'Support assistant', status: 'active' };
 const input: AgentInput = {

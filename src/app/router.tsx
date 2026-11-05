@@ -19,6 +19,9 @@ import { KnowledgePage } from '../pages/app/KnowledgePage';
 import { WorkflowsPage } from '../pages/app/WorkflowsPage';
 import { AuditPage } from '../pages/app/AuditPage';
 import { SettingsPage } from '../pages/app/SettingsPage';
+import { BillingPage } from '../pages/app/BillingPage';
+import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage';
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +36,8 @@ export const router = createBrowserRouter([
           </PublicLayout>
         ),
       },
+      { path: 'forgot-password', element: <ForgotPasswordPage /> },
+      { path: 'reset-password', element: <ResetPasswordPage /> },
       {
         element: <PublicRoute />,
         children: [
@@ -59,6 +64,7 @@ export const router = createBrowserRouter([
               { path: 'workflows', element: <WorkflowsPage /> },
               { path: 'audit', element: <AuditPage /> },
               { path: 'settings', element: <SettingsPage /> },
+              { path: 'billing', element: <BillingPage /> },
             ],
           },
         ],
