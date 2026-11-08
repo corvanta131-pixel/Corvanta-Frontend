@@ -54,6 +54,9 @@ const authSlice = createSlice({
         state.user = { ...state.user, ...action.payload };
       }
     },
+    updateCompany: (state, action: PayloadAction<Company>) => {
+      state.company = action.payload;
+    },
   },
 });
 
@@ -65,6 +68,7 @@ export const {
   clearAuth,
   updateTokens,
   updateUser,
+  updateCompany,
 } = authSlice.actions;
 
 export default authSlice.reducer;

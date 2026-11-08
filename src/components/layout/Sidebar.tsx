@@ -13,6 +13,7 @@ import {
   Sparkles,
   ChevronRight,
   DollarSign,
+  Activity,
 } from 'lucide-react';
 import { useAppSelector } from '../../hooks';
 import { can } from '../../utils/permissions';
@@ -35,6 +36,7 @@ const mainNavItems: NavItem[] = [
   { label: 'Channels', href: '/channels', icon: <MessageCircle className="h-5 w-5" />, permission: 'channels:read' },
   { label: 'Knowledge', href: '/knowledge', icon: <BookOpen className="h-5 w-5" />, permission: 'knowledge:read' },
   { label: 'Workflows', href: '/workflows', icon: <GitBranch className="h-5 w-5" />, permission: 'workflows:read' },
+  { label: 'Analytics', href: '/analytics', icon: <Activity className="h-5 w-5" />, permission: 'analytics:read' },
 ];
 
 const companyNavItems: NavItem[] = [

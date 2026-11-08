@@ -22,6 +22,7 @@ import { SettingsPage } from '../pages/app/SettingsPage';
 import { BillingPage } from '../pages/app/BillingPage';
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage';
+import { AnalyticsPage } from '../pages/app/AnalyticsPage';
 
 export const router = createBrowserRouter([
   {
@@ -63,6 +64,7 @@ export const router = createBrowserRouter([
               { path: 'knowledge', element: <KnowledgePage /> },
               { path: 'workflows', element: <WorkflowsPage /> },
               { path: 'audit', element: <AuditPage /> },
+              { path: 'analytics', element: <AnalyticsPage /> },
               { path: 'settings', element: <SettingsPage /> },
               { path: 'billing', element: <BillingPage /> },
             ],

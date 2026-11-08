@@ -38,6 +38,7 @@ const routeBreadcrumbs: Record<string, BreadcrumbItem[]> = {
   '/workflows': [{ label: 'Workflows' }],
   '/audit': [{ label: 'Audit' }],
   '/settings': [{ label: 'Settings' }],
+  '/analytics': [{ label: 'Analytics' }],
 };
 
 export function TopHeader() {
