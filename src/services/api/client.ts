@@ -1,6 +1,6 @@
 import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = import.meta.env['VITE_API_URL'] || 'https://api.campusify.net/api/v1';
+const API_BASE_URL = import.meta.env['VITE_API_URL'] || '/api/v1';
 
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
